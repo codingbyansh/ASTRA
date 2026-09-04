@@ -59,7 +59,7 @@ export const ClimatePage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Sun className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-bold text-slate-900">Area-Specific Climate & Solar Engine</h2>
+            <h2 className="text-lg font-bold text-slate-900">ASTRA Area-Specific Climate & Solar Engine</h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
             Standardized IMD, ISHRAE & NASA POWER hourly climatological profiles for defence deployment zones.

@@ -58,7 +58,7 @@ export const MaterialsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-bold text-slate-900">Materials & Multi-Layer Assembly Studio</h2>
+            <h2 className="text-lg font-bold text-slate-900">ASTRA Materials & Multi-Layer Assembly Studio</h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
             Thermophysical material properties verified by ASHRAE Fundamentals, IS 3792 & NBC India.

@@ -48,7 +48,7 @@ export const OptimizerPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Sliders className="w-5 h-5 text-amber-700" />
-            <h2 className="text-lg font-bold text-slate-900">Passive Shelter Design Optimizer Studio</h2>
+            <h2 className="text-lg font-bold text-slate-900">ASTRA Passive Shelter Design Optimizer Studio</h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
             Algorithmic multi-objective search optimizing orientation, window aperture, thermal mass & insulation.

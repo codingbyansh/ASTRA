@@ -50,14 +50,14 @@ export const OverviewPage: React.FC = () => {
           <div className="space-y-2 max-w-3xl">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-600/50">
-                DRDO Defence Habitat Optimization Platform
+                Project ASTRA · DRDO Defence Habitat Platform
               </span>
               <span className="text-xs text-slate-300 font-medium">
                 Scientific Lumped-Capacitance Heat Balance Model
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Design High-Altitude Shelters for Extreme Himalayan Climates
+              Project ASTRA: Design High-Altitude Shelters for Extreme Himalayan Climates
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed">
               Area-specific passive solar and high thermal inertia shelter design portal for Indian Armed Forces outposts.

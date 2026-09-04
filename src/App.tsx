@@ -43,7 +43,7 @@ const MainLayout: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
             <span className="font-semibold text-slate-200">
-              Defence Institute of High Altitude Research (DIHAR) · DRDO, Ministry of Defence
+              Project ASTRA · Defence Institute of High Altitude Research (DIHAR) · DRDO, Ministry of Defence
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-400 font-medium">

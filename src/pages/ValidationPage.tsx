@@ -23,7 +23,7 @@ export const ValidationPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-700" />
-            <h2 className="text-lg font-bold text-slate-900">Scientific Model Validation & Benchmarking Suite</h2>
+            <h2 className="text-lg font-bold text-slate-900">ASTRA Scientific Model Validation & Benchmarking Suite</h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
             Grounded against Analytical Physics, ANSI/ASHRAE Standard 140 BESTEST, US DOE EnergyPlus 9.6 & DRDO DIHAR Field Monographs.

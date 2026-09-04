@@ -48,17 +48,17 @@ export const SimulationPage: React.FC = () => {
 
   if (!currentSimulationResult) {
     return (
-      <div className="p-12 text-center bg-[#0c1829] border border-[#1f3352] rounded-xl space-y-4">
-        <Activity className="w-8 h-8 text-amber-400 mx-auto animate-pulse" />
-        <h3 className="text-base font-bold text-white">No Simulation Data</h3>
-        <p className="text-xs text-slate-300 max-w-md mx-auto">
-          Execute the transient lumped-capacitance heat balance solver to evaluate indoor temperatures and comfort.
+      <div className="p-12 text-center bg-white border border-slate-200 rounded-xl space-y-4 shadow-sm">
+        <Activity className="w-8 h-8 text-amber-600 mx-auto animate-pulse" />
+        <h3 className="text-base font-bold text-slate-900">No Simulation Data Available</h3>
+        <p className="text-xs text-slate-600 max-w-md mx-auto">
+          Execute the ASTRA transient lumped-capacitance heat balance solver to evaluate indoor temperatures and comfort.
         </p>
         <button
           onClick={runSimulation}
-          className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/50 text-white text-xs font-bold rounded-lg shadow transition"
+          className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 border border-emerald-600 text-white text-xs font-bold rounded-lg shadow-sm transition"
         >
-          Run Thermal Simulation
+          Run ASTRA Thermal Simulation
         </button>
       </div>
     );
@@ -101,7 +101,7 @@ export const SimulationPage: React.FC = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `thermal_simulation_${currentDesign.locationId}_${currentDesign.id}.csv`);
+    link.setAttribute('download', `astra_thermal_simulation_${currentDesign.locationId}_${currentDesign.id}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -114,7 +114,7 @@ export const SimulationPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-bold text-slate-900">Transient Thermal Simulation Dashboard</h2>
+            <h2 className="text-lg font-bold text-slate-900">ASTRA Transient Thermal Simulation Dashboard</h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
             Zone: <span className="text-slate-900 font-semibold">{location.name}</span> · 

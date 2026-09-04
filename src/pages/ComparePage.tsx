@@ -66,7 +66,7 @@ export const ComparePage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <GitCompare className="w-5 h-5 text-amber-700" />
-            <h2 className="text-lg font-bold text-slate-900">Multi-Design Thermal Performance Comparison</h2>
+            <h2 className="text-lg font-bold text-slate-900">ASTRA Multi-Design Thermal Performance Comparison</h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
             Evaluate alternative envelope assemblies, insulation thicknesses & passive solar apertures side-by-side.

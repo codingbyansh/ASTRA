@@ -44,7 +44,7 @@ export const ReportsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-amber-700" />
-            <h2 className="text-base font-bold text-slate-900">DRDO Official Technical Engineering Report</h2>
+            <h2 className="text-base font-bold text-slate-900">Project ASTRA Official Technical Engineering Report</h2>
           </div>
           <p className="text-xs text-slate-600">
             Certified technical evaluation for passive thermal shelter, Sol-Air heat balance, and IMAC comfort criteria.
@@ -72,15 +72,15 @@ export const ReportsPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-800 uppercase tracking-widest">
               <Shield className="w-4 h-4 text-amber-700" />
-              <span>DEFENCE RESEARCH & DEVELOPMENT ORGANISATION (DRDO) · GOVT. OF INDIA</span>
+              <span>DEFENCE RESEARCH & DEVELOPMENT ORGANISATION (DRDO) · PROJECT ASTRA</span>
             </div>
             <span className="text-xs font-mono text-slate-500 font-bold">
-              Ref: DRDO-DIHAR-TR-2026-09
+              Ref: DRDO-ASTRA-TR-2026-09
             </span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            High-Altitude Passive Shelter Thermal Design & Optimization Report
+            Project ASTRA: High-Altitude Passive Shelter Thermal Design & Optimization Report
           </h1>
           <p className="text-xs text-slate-600">
             Location: <strong className="text-slate-900">{location.name}</strong> ({location.altitudeMeters}m MSL, {location.climateZone.toUpperCase()}) · 
@@ -286,10 +286,10 @@ export const ReportsPage: React.FC = () => {
         {/* Sign-off Footer */}
         <div className="pt-8 border-t border-slate-200 flex justify-between text-xs font-mono text-slate-500">
           <div>
-            <span>Platform: DRDO Defence Passive Thermal Engine v2.4</span>
+            <span>Platform: Project ASTRA (Defence Passive Thermal Engine v2.4)</span>
           </div>
           <div>
-            <span>Certified: DRDO DIHAR Field Habitat Protocol</span>
+            <span>Certified: DRDO DIHAR Field Habitat Protocol · Project ASTRA Clearance</span>
           </div>
         </div>
       </div>

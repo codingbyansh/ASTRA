@@ -15,7 +15,7 @@ import { runDesignOptimization } from '../engine/optimizer';
 // Default Canonical Demo Design (DRDO Leh, Ladakh Standard High-Altitude Test Case)
 export const DEFAULT_LEH_DEMO_DESIGN: ShelterDesign = {
   id: 'drdo_leh_baseline',
-  name: 'DRDO High-Altitude Field Shelter (Leh Baseline)',
+  name: 'ASTRA High-Altitude Field Shelter (Leh Baseline)',
   locationId: 'leh_ladakh',
   geometry: {
     lengthM: 6.0,

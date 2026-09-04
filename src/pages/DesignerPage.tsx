@@ -76,7 +76,7 @@ export const DesignerPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Box className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-bold text-slate-900">Parametric Shelter CAD Studio</h2>
+            <h2 className="text-lg font-bold text-slate-900">ASTRA Parametric Shelter CAD Studio</h2>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
             Modify length, width, height, roof pitch, orientation & multi-layer envelope in real-time.

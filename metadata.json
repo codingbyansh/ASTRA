@@ -1,6 +1,6 @@
 {
-  "name": "DRDO Passive Shelter Thermal Comfort & Design Platform",
-  "description": "Scientific engineering platform for location-specific passive habitat thermal comfort design, 3D solar-thermal simulation, multi-design comparison, optimization, and validated thermal analysis for DRDO defence habitats.",
+  "name": "ASTRA - DRDO Passive Shelter Thermal Comfort Platform",
+  "description": "Project ASTRA: Scientific engineering platform for location-specific passive habitat thermal comfort design, 3D solar-thermal simulation, multi-design comparison, optimization, and validated thermal analysis for DRDO defence habitats.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

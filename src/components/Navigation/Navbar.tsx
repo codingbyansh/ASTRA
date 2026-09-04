@@ -75,7 +75,7 @@ export const Navbar: React.FC = () => {
             </span>
             <span className="text-slate-600 hidden md:inline">|</span>
             <span className="text-amber-300/90 hidden md:inline font-mono text-[10px]">
-              {lang === 'HI' ? 'डीआरडीओ - डिहार मानकीकृत पोर्टल' : 'DRDO - DIHAR DEFENCE PORTAL'}
+              {lang === 'HI' ? 'परियोजना एस्ट्रा (ASTRA) · डीआरडीओ - डिहार पोर्टल' : 'PROJECT ASTRA · DRDO DIHAR DEFENCE PORTAL'}
             </span>
           </div>
 
@@ -109,18 +109,21 @@ export const Navbar: React.FC = () => {
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold tracking-wider text-amber-400 bg-[#091728] px-2 py-0.5 rounded border border-amber-500/40 uppercase">
+              <span className="text-[11px] font-black tracking-widest text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50 uppercase">
+                ASTRA
+              </span>
+              <span className="text-[11px] font-bold tracking-wider text-slate-300 bg-[#091728] px-2 py-0.5 rounded border border-[#1c3a5e] uppercase">
                 DRDO · DIHAR
               </span>
-              <span className="text-xs text-slate-200 font-semibold hidden sm:inline">
+              <span className="text-xs text-slate-300 font-semibold hidden sm:inline">
                 {lang === 'HI' ? 'रक्षा अनुसंधान एवं विकास संगठन' : 'Defence Research & Development Organisation'}
               </span>
             </div>
             <h1 className="text-sm sm:text-base font-black text-white tracking-tight flex items-center gap-2 mt-0.5">
               <span>
                 {lang === 'HI'
-                  ? 'रक्षा आवास तापीय आराम एवं सीएडी इंजीनियरिंग मंच'
-                  : 'Passive Habitat Thermal Comfort & CAD Engineering Platform'}
+                  ? 'परियोजना एस्ट्रा (ASTRA): रक्षा आवास तापीय आराम एवं सीएडी इंजीनियरिंग मंच'
+                  : 'ASTRA: Defence Passive Shelter Thermal Comfort & CAD Engineering Platform'}
               </span>
             </h1>
           </div>

@@ -1,6 +1,7 @@
 // DRDO Defence Habitat: Design Optimizer Studio & Recommendation Engine
 import React, { useState } from 'react';
 import { useDesign } from '../store/designStore';
+import { getLocationById } from '../data/climate';
 import { OptimizationGoal } from '../types';
 import {
   Sliders,
@@ -29,6 +30,7 @@ export const OptimizerPage: React.FC = () => {
     setActiveView,
   } = useDesign();
 
+  const location = getLocationById(currentDesign.locationId);
   const [objective, setObjective] = useState<OptimizationGoal['objective']>('balanced_drdo_cold_climate');
 
   const handleRunOptimizer = () => {
@@ -48,10 +50,12 @@ export const OptimizerPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Sliders className="w-5 h-5 text-amber-700" />
-            <h2 className="text-lg font-bold text-slate-900">ASTRA Passive Shelter Design Optimizer Studio</h2>
+            <h2 className="text-lg font-bold text-slate-900">
+              ASTRA Passive Shelter Optimizer · {location?.shortName} Sector
+            </h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
-            Algorithmic multi-objective search optimizing orientation, window aperture, thermal mass & insulation.
+            Algorithmic multi-objective search engineered for {location?.name} ({location?.zoneTitle}, {location?.altitudeMeters}m MSL).
           </p>
         </div>
 
@@ -74,8 +78,8 @@ export const OptimizerPage: React.FC = () => {
           {[
             {
               id: 'balanced_drdo_cold_climate',
-              title: 'DRDO High-Altitude Cold Spec',
-              desc: 'Maximizes nocturnal minimum temperature & solar retention in freezing Leh/Dras terrain.',
+              title: `DRDO ${location?.zoneTitle || 'Tactical'} Spec`,
+              desc: `Maximizes thermal comfort, inertia and envelope resistance for ${location?.name || 'the deployment sector'}.`,
             },
             {
               id: 'maximize_comfort',
@@ -134,9 +138,7 @@ export const OptimizerPage: React.FC = () => {
                 </h3>
 
                 <p className="text-xs text-slate-700 leading-relaxed">
-                  Optimized specifically for high-altitude cold desert conditions (Leh, Ladakh). Balances high diurnal
-                  solar absorption through South-facing Low-E double glazing with heavy 300mm stabilized rammed earth
-                  thermal storage and insulated nocturnal shutters.
+                  Optimized specifically for {location?.name} ({location?.zoneTitle}, {location?.altitudeMeters}m MSL). Balances climate-appropriate thermal envelope resistance with passive solar gain and high thermal lag storage.
                 </p>
 
                 {/* Key Quantitative Deltas over Baseline */}

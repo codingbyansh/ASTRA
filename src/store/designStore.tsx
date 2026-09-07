@@ -11,11 +11,12 @@ import {
 } from '../types';
 import { runThermalSimulation } from '../engine/thermalEngine';
 import { runDesignOptimization } from '../engine/optimizer';
+import { CLIMATE_LOCATIONS, getLocationById } from '../data/climate';
 
 // Default Canonical Demo Design (DRDO Leh, Ladakh Standard High-Altitude Test Case)
 export const DEFAULT_LEH_DEMO_DESIGN: ShelterDesign = {
   id: 'drdo_leh_baseline',
-  name: 'ASTRA High-Altitude Field Shelter (Leh Baseline)',
+  name: 'ASTRA Alpine Field Shelter (Leh Baseline)',
   locationId: 'leh_ladakh',
   geometry: {
     lengthM: 6.0,
@@ -131,6 +132,224 @@ export const INDIGENOUS_HIGH_MASS_DESIGN: ShelterDesign = {
   tags: ['Eco-Indigenous', 'Zero-Carbon', 'Ladakh-Wool'],
 };
 
+// Area-Specific Canonical Baseline Design Presets for ASTRA
+export const DRAS_DEMO_DESIGN: ShelterDesign = {
+  ...DEFAULT_LEH_DEMO_DESIGN,
+  id: 'astra_dras_extreme_winter',
+  name: 'ASTRA Sub-Zero Forward Outpost (Dras Extreme Cold)',
+  locationId: 'dras_kargil',
+  geometry: {
+    ...DEFAULT_LEH_DEMO_DESIGN.geometry,
+    roofPitchDeg: 35,
+    overhangLengthM: 0.5,
+  },
+  envelope: {
+    ...DEFAULT_LEH_DEMO_DESIGN.envelope,
+    wallMaterialId: 'puf_sandwich_roof_panel',
+    wallThicknessMm: 120,
+    roofMaterialId: 'puf_sandwich_roof_panel',
+    roofThicknessMm: 120,
+    insulationThicknessMm: 140,
+    roofInsulationThicknessMm: 180,
+    wallSolarAbsorptance: 0.80,
+    roofSolarAbsorptance: 0.85,
+  },
+  openings: {
+    ...DEFAULT_LEH_DEMO_DESIGN.openings,
+    windowAreaSouthM2: 4.0,
+    windowAreaNorthM2: 0.2,
+    glazingType: 'triple_low_e',
+    windowUValue: 1.10,
+    nightShutterInstalled: true,
+    nightShutterRValue: 0.85,
+    ventilationRateAchDay: 0.5,
+    ventilationRateAchNight: 0.3,
+  },
+  notes: 'ASTRA Sub-Zero Outpost: Ultra-insulated envelope calibrated for -28°C Dras-Kargil extremes with triple-pane Low-E glazing.',
+  tags: ['Sub-Zero', 'Extreme-Cold', 'Dras-Kargil', 'Ultra-Insulated'],
+};
+
+export const JAISALMER_DEMO_DESIGN: ShelterDesign = {
+  ...DEFAULT_LEH_DEMO_DESIGN,
+  id: 'astra_jaisalmer_desert',
+  name: 'ASTRA Desert Patrol Shelter (Jaisalmer Arid Zone)',
+  locationId: 'jaisalmer_rajasthan',
+  geometry: {
+    ...DEFAULT_LEH_DEMO_DESIGN.geometry,
+    shape: 'flat',
+    roofPitchDeg: 0,
+    overhangLengthM: 1.2,
+  },
+  envelope: {
+    ...DEFAULT_LEH_DEMO_DESIGN.envelope,
+    wallMaterialId: 'rammed_earth_stabilized',
+    wallThicknessMm: 400,
+    roofMaterialId: 'insulated_concrete_slab_on_grade',
+    roofThicknessMm: 200,
+    insulationThicknessMm: 50,
+    roofInsulationThicknessMm: 75,
+    wallSolarAbsorptance: 0.28,
+    roofSolarAbsorptance: 0.25,
+  },
+  openings: {
+    ...DEFAULT_LEH_DEMO_DESIGN.openings,
+    windowAreaSouthM2: 1.8,
+    windowAreaNorthM2: 0.8,
+    windowAreaEastM2: 0.4,
+    windowAreaWestM2: 0.2,
+    totalWindowAreaM2: 3.2,
+    glazingType: 'double_low_e',
+    shadingOverhangRatio: 0.85,
+    nightShutterInstalled: true,
+    ventilationRateAchDay: 0.4,
+    ventilationRateAchNight: 3.5,
+  },
+  simulationSettings: {
+    ...DEFAULT_LEH_DEMO_DESIGN.simulationSettings,
+    season: 'summer',
+    initialIndoorTempC: 30.0,
+    groundTempCouplingC: 28.0,
+  },
+  notes: 'ASTRA Desert Patrol Shelter: 400mm thermal mass, high night purge ventilation, and low solar absorptance for 46°C Thar heat.',
+  tags: ['Hot-Arid', 'Thar-Desert', 'Thermal-Mass', 'Night-Purge'],
+};
+
+export const DELHI_DEMO_DESIGN: ShelterDesign = {
+  ...DEFAULT_LEH_DEMO_DESIGN,
+  id: 'astra_delhi_composite',
+  name: 'ASTRA Dual-Season Tactical Habitat (Delhi Composite)',
+  locationId: 'new_delhi',
+  geometry: {
+    ...DEFAULT_LEH_DEMO_DESIGN.geometry,
+    shape: 'flat',
+    roofPitchDeg: 5,
+    overhangLengthM: 1.0,
+  },
+  envelope: {
+    ...DEFAULT_LEH_DEMO_DESIGN.envelope,
+    wallMaterialId: 'aac_autoclaved_block',
+    wallThicknessMm: 200,
+    roofMaterialId: 'insulated_concrete_slab_on_grade',
+    roofThicknessMm: 150,
+    insulationThicknessMm: 60,
+    roofInsulationThicknessMm: 80,
+    wallSolarAbsorptance: 0.35,
+    roofSolarAbsorptance: 0.30,
+  },
+  openings: {
+    ...DEFAULT_LEH_DEMO_DESIGN.openings,
+    windowAreaSouthM2: 3.0,
+    windowAreaNorthM2: 1.0,
+    windowAreaEastM2: 0.8,
+    windowAreaWestM2: 0.5,
+    totalWindowAreaM2: 5.3,
+    shadingOverhangRatio: 0.65,
+    ventilationRateAchDay: 0.8,
+    ventilationRateAchNight: 2.0,
+  },
+  notes: 'ASTRA Composite Barracks: Dual-season passive cooling and heating response for Delhi composite climate.',
+  tags: ['Composite', 'National-Capital', 'Dual-Season', 'Cool-Roof'],
+};
+
+export const GUWAHATI_DEMO_DESIGN: ShelterDesign = {
+  ...DEFAULT_LEH_DEMO_DESIGN,
+  id: 'astra_guwahati_humid',
+  name: 'ASTRA Humid-Sector Tactical Barracks (Guwahati Zone)',
+  locationId: 'guwahati_assam',
+  geometry: {
+    ...DEFAULT_LEH_DEMO_DESIGN.geometry,
+    shape: 'pitched',
+    roofPitchDeg: 25,
+    overhangLengthM: 1.4,
+  },
+  envelope: {
+    ...DEFAULT_LEH_DEMO_DESIGN.envelope,
+    wallMaterialId: 'aac_autoclaved_block',
+    wallThicknessMm: 150,
+    roofMaterialId: 'puf_sandwich_roof_panel',
+    roofThicknessMm: 60,
+    insulationThicknessMm: 40,
+    roofInsulationThicknessMm: 60,
+    wallSolarAbsorptance: 0.40,
+    roofSolarAbsorptance: 0.35,
+  },
+  openings: {
+    ...DEFAULT_LEH_DEMO_DESIGN.openings,
+    windowAreaSouthM2: 3.5,
+    windowAreaNorthM2: 2.5,
+    windowAreaEastM2: 1.5,
+    windowAreaWestM2: 1.2,
+    totalWindowAreaM2: 8.7,
+    glazingType: 'double_clear',
+    shadingOverhangRatio: 0.75,
+    nightShutterInstalled: false,
+    ventilationRateAchDay: 3.0,
+    ventilationRateAchNight: 2.5,
+  },
+  simulationSettings: {
+    ...DEFAULT_LEH_DEMO_DESIGN.simulationSettings,
+    season: 'monsoon',
+  },
+  notes: 'ASTRA Humid-Sector Barracks: Maximized cross-ventilation and deep solar/rain overhangs for North-East terrain.',
+  tags: ['Warm-Humid', 'North-East', 'Cross-Ventilation', 'Deep-Eaves'],
+};
+
+export const SHIMLA_DEMO_DESIGN: ShelterDesign = {
+  ...DEFAULT_LEH_DEMO_DESIGN,
+  id: 'astra_shimla_mountain',
+  name: 'ASTRA Highland Mountain Habitat (Shimla Cold Zone)',
+  locationId: 'shimla_hp',
+  geometry: {
+    ...DEFAULT_LEH_DEMO_DESIGN.geometry,
+    shape: 'gable',
+    roofPitchDeg: 35,
+    overhangLengthM: 0.7,
+  },
+  envelope: {
+    ...DEFAULT_LEH_DEMO_DESIGN.envelope,
+    wallMaterialId: 'fired_clay_brick',
+    wallThicknessMm: 250,
+    roofMaterialId: 'puf_sandwich_roof_panel',
+    roofThicknessMm: 80,
+    insulationThicknessMm: 100,
+    roofInsulationThicknessMm: 120,
+    wallSolarAbsorptance: 0.72,
+    roofSolarAbsorptance: 0.75,
+  },
+  openings: {
+    ...DEFAULT_LEH_DEMO_DESIGN.openings,
+    windowAreaSouthM2: 4.2,
+    windowAreaNorthM2: 0.4,
+    windowAreaEastM2: 0.8,
+    windowAreaWestM2: 0.8,
+    totalWindowAreaM2: 6.2,
+    glazingType: 'double_low_e',
+    nightShutterInstalled: true,
+    ventilationRateAchDay: 0.7,
+    ventilationRateAchNight: 0.5,
+  },
+  notes: 'ASTRA Highland Mountain Habitat: Snow-shedding steep pitch and airtight envelope for Western Himalayan climate.',
+  tags: ['Cold-Cloudy', 'Western-Himalayas', 'Snow-Shedding', 'Airtight-Envelope'],
+};
+
+export function getAreaAdaptedDesign(locationId: string): ShelterDesign {
+  switch (locationId) {
+    case 'dras_kargil':
+      return { ...DRAS_DEMO_DESIGN };
+    case 'jaisalmer_rajasthan':
+      return { ...JAISALMER_DEMO_DESIGN };
+    case 'new_delhi':
+      return { ...DELHI_DEMO_DESIGN };
+    case 'guwahati_assam':
+      return { ...GUWAHATI_DEMO_DESIGN };
+    case 'shimla_hp':
+      return { ...SHIMLA_DEMO_DESIGN };
+    case 'leh_ladakh':
+    default:
+      return { ...DEFAULT_LEH_DEMO_DESIGN };
+  }
+}
+
 interface DesignContextType {
   currentDesign: ShelterDesign;
   setCurrentDesign: React.Dispatch<React.SetStateAction<ShelterDesign>>;
@@ -150,7 +369,8 @@ interface DesignContextType {
   setSelectedHour: (hour: number) => void;
   lang: 'EN' | 'HI';
   setLang: React.Dispatch<React.SetStateAction<'EN' | 'HI'>>;
-  loadDemoDataset: (presetKey?: 'leh' | 'dras' | 'delhi' | 'jaisalmer') => void;
+  loadDemoDataset: (presetKey?: string) => void;
+  setAreaLocation: (locationId: string, adaptDesignSpec?: boolean) => void;
   updateGeometry: (geometry: Partial<ShelterDesign['geometry']>) => void;
   updateEnvelope: (envelope: Partial<ShelterDesign['envelope']>) => void;
   updateOpenings: (openings: Partial<ShelterDesign['openings']>) => void;
@@ -254,63 +474,50 @@ export const DesignProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  const loadDemoDataset = (presetKey: 'leh' | 'dras' | 'delhi' | 'jaisalmer' = 'leh') => {
+  const setAreaLocation = (locationId: string, adaptDesignSpec: boolean = true) => {
     let newDesign: ShelterDesign;
-    if (presetKey === 'leh') {
-      newDesign = { ...DEFAULT_LEH_DEMO_DESIGN };
-    } else if (presetKey === 'dras') {
-      newDesign = {
-        ...DEFAULT_LEH_DEMO_DESIGN,
-        id: 'drdo_dras_extreme_winter',
-        name: 'DRDO Dras Forward Outpost (-28°C Sub-Zero)',
-        locationId: 'dras_kargil',
-        envelope: {
-          ...DEFAULT_LEH_DEMO_DESIGN.envelope,
-          insulationThicknessMm: 120,
-          roofInsulationThicknessMm: 160,
-        },
-      };
-    } else if (presetKey === 'delhi') {
-      newDesign = {
-        ...DEFAULT_LEH_DEMO_DESIGN,
-        id: 'delhi_composite_barracks',
-        name: 'Delhi Composite Climate Barracks',
-        locationId: 'new_delhi',
-        geometry: {
-          ...DEFAULT_LEH_DEMO_DESIGN.geometry,
-          overhangLengthM: 1.0, // Deep shading against summer sun
-        },
-        envelope: {
-          ...DEFAULT_LEH_DEMO_DESIGN.envelope,
-          wallMaterialId: 'aac_autoclaved_block',
-          wallSolarAbsorptance: 0.35, // Light reflective coating
-          roofSolarAbsorptance: 0.30, // Cool roof
-          insulationThicknessMm: 50,
-        },
-      };
+    if (adaptDesignSpec) {
+      newDesign = getAreaAdaptedDesign(locationId);
     } else {
+      const loc = getLocationById(locationId);
       newDesign = {
-        ...DEFAULT_LEH_DEMO_DESIGN,
-        id: 'jaisalmer_desert_patrol',
-        name: 'Jaisalmer Thar Desert Heavy Mass Shelter',
-        locationId: 'jaisalmer_rajasthan',
-        envelope: {
-          ...DEFAULT_LEH_DEMO_DESIGN.envelope,
-          wallMaterialId: 'rammed_earth_stabilized',
-          wallThicknessMm: 400,
-          insulationThicknessMm: 50,
-          wallSolarAbsorptance: 0.30,
-        },
-        openings: {
-          ...DEFAULT_LEH_DEMO_DESIGN.openings,
-          windowAreaSouthM2: 2.0,
-          ventilationRateAchNight: 3.5, // High night purge cooling
-        },
+        ...currentDesign,
+        locationId,
+        name: loc ? loc.recommendedShelterTitle : currentDesign.name,
+        updatedAt: new Date().toISOString(),
       };
     }
     setCurrentDesign(newDesign);
-    const res = runThermalSimulation(newDesign);
-    setCurrentSimulationResult(res);
+    try {
+      const res = runThermalSimulation(newDesign);
+      setCurrentSimulationResult(res);
+    } catch (e) {
+      console.error('Simulation error after location switch:', e);
+    }
+  };
+
+  const loadDemoDataset = (presetKey: string = 'leh') => {
+    let targetLocId = 'leh_ladakh';
+    if (presetKey === 'dras' || presetKey === 'dras_kargil') {
+      targetLocId = 'dras_kargil';
+    } else if (presetKey === 'delhi' || presetKey === 'new_delhi') {
+      targetLocId = 'new_delhi';
+    } else if (presetKey === 'jaisalmer' || presetKey === 'jaisalmer_rajasthan') {
+      targetLocId = 'jaisalmer_rajasthan';
+    } else if (presetKey === 'guwahati' || presetKey === 'guwahati_assam') {
+      targetLocId = 'guwahati_assam';
+    } else if (presetKey === 'shimla' || presetKey === 'shimla_hp') {
+      targetLocId = 'shimla_hp';
+    }
+
+    const newDesign = getAreaAdaptedDesign(targetLocId);
+    setCurrentDesign(newDesign);
+    try {
+      const res = runThermalSimulation(newDesign);
+      setCurrentSimulationResult(res);
+    } catch (e) {
+      console.error('Simulation error on preset load:', e);
+    }
   };
 
   const updateGeometry = (geom: Partial<ShelterDesign['geometry']>) => {
@@ -383,6 +590,7 @@ export const DesignProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         lang,
         setLang,
         loadDemoDataset,
+        setAreaLocation,
         updateGeometry,
         updateEnvelope,
         updateOpenings,

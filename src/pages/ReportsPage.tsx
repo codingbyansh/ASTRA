@@ -80,10 +80,11 @@ export const ReportsPage: React.FC = () => {
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Project ASTRA: High-Altitude Passive Shelter Thermal Design & Optimization Report
+            ASTRA: {location.zoneTitle} Passive Shelter Thermal Engineering Report
           </h1>
           <p className="text-xs text-slate-600">
-            Location: <strong className="text-slate-900">{location.name}</strong> ({location.altitudeMeters}m MSL, {location.climateZone.toUpperCase()}) · 
+            Design Spec: <strong className="text-slate-900">{currentDesign.name}</strong> · 
+            Deployment Sector: <strong className="text-slate-900">{location.name}</strong> ({location.altitudeMeters}m MSL, {location.climateZone.toUpperCase()}) · 
             Generated: {new Date().toLocaleDateString('en-GB')} · Security Level: Standard Technical Clearance
           </p>
         </div>

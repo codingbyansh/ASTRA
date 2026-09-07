@@ -114,10 +114,13 @@ export const SimulationPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-bold text-slate-900">ASTRA Transient Thermal Simulation Dashboard</h2>
+            <h2 className="text-lg font-bold text-slate-900">
+              ASTRA Transient Thermal Simulation · {location.shortName} Sector
+            </h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
-            Zone: <span className="text-slate-900 font-semibold">{location.name}</span> · 
+            Area: <span className="text-slate-900 font-semibold">{location.name}</span> ({location.zoneTitle}, {location.altitudeMeters}m MSL) · 
+            Shelter Spec: <span className="text-amber-800 font-semibold">{currentDesign.name}</span> · 
             Duration: <span className="text-slate-900 font-semibold">{summary.totalSimulationHours} Hours</span> · 
             Season: <span className="text-amber-800 font-semibold uppercase">{currentDesign.simulationSettings.season}</span>
           </p>

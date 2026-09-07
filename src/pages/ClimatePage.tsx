@@ -29,18 +29,14 @@ import {
 } from 'recharts';
 
 export const ClimatePage: React.FC = () => {
-  const { currentDesign, setCurrentDesign, runSimulation } = useDesign();
+  const { currentDesign, setCurrentDesign, setAreaLocation, runSimulation } = useDesign();
   const [selectedSeason, setSelectedSeason] = useState<Season>(currentDesign.simulationSettings.season);
 
   const activeLoc = getLocationById(currentDesign.locationId);
   const hourlyData = generateHourlyClimateData(currentDesign.locationId, selectedSeason, 24);
 
   const handleLocationSelect = (locId: string) => {
-    setCurrentDesign((prev) => ({
-      ...prev,
-      locationId: locId,
-      updatedAt: new Date().toISOString(),
-    }));
+    setAreaLocation(locId, true);
   };
 
   const handleSeasonChange = (season: Season) => {
@@ -116,19 +112,25 @@ export const ClimatePage: React.FC = () => {
                   )}
                 </div>
 
+                <div className="inline-block text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  {loc.zoneTitle}
+                </div>
+
                 <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
                   {loc.description}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-200 grid grid-cols-2 gap-2 text-xs font-mono">
+              <div className="mt-3 pt-2.5 border-t border-slate-200 grid grid-cols-2 gap-2 text-xs font-mono">
                 <div>
-                  <span className="text-slate-500 text-[10px] block">Altitude</span>
-                  <span className="text-slate-900 font-bold">{loc.altitudeMeters}m MSL</span>
+                  <span className="text-slate-500 text-[10px] block">Altitude / Terrain</span>
+                  <span className="text-slate-900 font-bold">{loc.altitudeMeters}m · {loc.terrainType.replace('_', ' ')}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 text-[10px] block">Winter Design T</span>
-                  <span className="text-rose-700 font-bold">{loc.designWinterTempC}°C</span>
+                  <span className="text-slate-500 text-[10px] block">Extreme Design T</span>
+                  <span className="text-rose-700 font-bold">
+                    {loc.designWinterTempC < 10 ? `${loc.designWinterTempC}°C Win` : `${loc.designSummerTempC}°C Sum`}
+                  </span>
                 </div>
               </div>
             </div>

@@ -48,21 +48,20 @@ export const OverviewPage: React.FC = () => {
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2 max-w-3xl">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-600/50">
-                Project ASTRA · DRDO Defence Habitat Platform
+                Project ASTRA · {location?.shortName || 'Operational'} Sector
               </span>
-              <span className="text-xs text-slate-300 font-medium">
-                Scientific Lumped-Capacitance Heat Balance Model
+              <span className="text-xs text-emerald-300 bg-emerald-950/70 border border-emerald-700/60 px-2 py-0.5 rounded-full font-mono">
+                {location?.zoneTitle || 'Thermal Zone'} · {location?.altitudeMeters}m MSL
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Project ASTRA: Design High-Altitude Shelters for Extreme Himalayan Climates
+              {location?.overviewHeadline || `Project ASTRA: Thermal Shelter Engineering for ${location?.name}`}
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Area-specific passive solar and high thermal inertia shelter design portal for Indian Armed Forces outposts.
-              Evaluates dynamic sol-air solar irradiance, multi-layer envelope conduction, internal thermal mass dampening,
-              and IMAC-2016 adaptive thermal comfort across Leh, Siachen Base, Dras, and Tawang.
+              {location?.overviewDescription ||
+                `Area-specific passive solar and thermal comfort optimization portal for Indian Armed Forces outposts across ${location?.name}.`}
             </p>
           </div>
 
@@ -212,12 +211,18 @@ export const OverviewPage: React.FC = () => {
                 <span className="font-bold text-slate-900">{location.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Altitude:</span>
-                <span className="text-slate-800 font-mono font-semibold">{location.altitudeMeters} meters MSL</span>
+                <span className="text-slate-500">Zone Profile:</span>
+                <span className="font-semibold text-amber-800">{location.zoneTitle}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Design Winter Temp:</span>
-                <span className="text-rose-700 font-mono font-bold">{location.designWinterTempC}°C</span>
+                <span className="text-slate-500">Altitude & Terrain:</span>
+                <span className="text-slate-800 font-mono font-semibold">{location.altitudeMeters}m MSL · {location.terrainType.replace('_', ' ')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Design Extreme:</span>
+                <span className="text-rose-700 font-mono font-bold">
+                  {location.designWinterTempC < 10 ? `${location.designWinterTempC}°C Winter` : `${location.designSummerTempC}°C Summer`}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Solar Irradiance:</span>
@@ -226,6 +231,7 @@ export const OverviewPage: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-600 leading-relaxed">
+              <div className="font-semibold text-slate-800 mb-0.5">Area Mission Context:</div>
               {location.drdoRelevanceNotes}
             </div>
           </div>

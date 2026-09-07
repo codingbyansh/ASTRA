@@ -4,6 +4,7 @@ import { useDesign } from '../store/designStore';
 import { Shelter3DViewer } from '../components/ThreeCanvas/Shelter3DViewer';
 import { MATERIALS_DATABASE, GLAZING_DATABASE, calculateAssemblyThermalProperties } from '../data/materials';
 import { calculateGeometricBreakdown } from '../engine/thermalEngine';
+import { getLocationById } from '../data/climate';
 import { ShelterShape, GlazingType } from '../types';
 import {
   Box,
@@ -37,6 +38,7 @@ export const DesignerPage: React.FC = () => {
   const [activeTabLeft, setActiveTabLeft] = useState<'dimensions' | 'roof' | 'orientation' | 'occupants'>('dimensions');
   const [activeTabRight, setActiveTabRight] = useState<'materials' | 'insulation' | 'glazing'>('materials');
 
+  const location = getLocationById(currentDesign.locationId);
   const geo = calculateGeometricBreakdown(currentDesign);
 
   // Live Wall & Roof U-Values
@@ -76,10 +78,15 @@ export const DesignerPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Box className="w-5 h-5 text-amber-600" />
-            <h2 className="text-lg font-bold text-slate-900">ASTRA Parametric Shelter CAD Studio</h2>
+            <h2 className="text-lg font-bold text-slate-900">
+              ASTRA 3D CAD Studio · {location?.shortName} Sector
+            </h2>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+              {currentDesign.name}
+            </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Modify length, width, height, roof pitch, orientation & multi-layer envelope in real-time.
+            Parametric envelope CAD engineered for {location?.name} ({location?.zoneTitle}, {location?.altitudeMeters}m MSL).
           </p>
         </div>
 
@@ -203,7 +210,11 @@ export const DesignerPage: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-500">
-                    Recommended 1.3:1 to 1.7:1 elongated along East-West axis for maximum winter solar gain in Ladakh.
+                    {location?.climateZone === 'cold_arid' || location?.climateZone === 'extreme_cold' || location?.climateZone === 'cold_cloudy'
+                      ? `Recommended 1.3:1 to 1.7:1 elongated along East-West axis for maximum winter solar heat gain in ${location.shortName}.`
+                      : location?.climateZone === 'hot_arid'
+                      ? `Recommended compact geometry (1.1:1 to 1.3:1) to minimize external solar envelope exposure in ${location.shortName}.`
+                      : `Recommended orientation & ratio optimized for thermal buffering and cross-ventilation in ${location?.shortName}.`}
                   </p>
                 </div>
               </div>
@@ -250,7 +261,7 @@ export const DesignerPage: React.FC = () => {
                     className="w-full h-1.5 bg-slate-200 rounded-lg accent-amber-600"
                   />
                   <span className="text-[10px] text-slate-500">
-                    Optimal for Leh winter solar altitude = 32° (Latitude ~34°N).
+                    Calculated for {location?.shortName} solar latitude ~{location?.latitude}°N (Optimal winter pitch: ~{Math.min(45, Math.max(15, Math.round((location?.latitude || 34) - 2)))}°).
                   </span>
                 </div>
 

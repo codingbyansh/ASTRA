@@ -48,6 +48,8 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
   const sunLightRef = useRef<THREE.DirectionalLight | null>(null);
   const sunMeshRef = useRef<THREE.Mesh | null>(null);
   const sunRayLineRef = useRef<THREE.Line | null>(null);
+  const groundMeshRef = useRef<THREE.Mesh | null>(null);
+  const gridHelperRef = useRef<THREE.GridHelper | null>(null);
 
   const location = getLocationById(design.locationId);
 
@@ -60,6 +62,22 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
     setHour(newHour);
     if (onHourChange) onHourChange(newHour);
   };
+
+  // Dynamically update terrain, grid and sky colors when location/area changes
+  useEffect(() => {
+    if (sceneRef.current && location) {
+      sceneRef.current.background = new THREE.Color(location.skyColor || '#081220');
+    }
+    if (groundMeshRef.current && location) {
+      (groundMeshRef.current.material as THREE.MeshStandardMaterial).color.set(location.terrainColor || '#090d16');
+    }
+    if (gridHelperRef.current && location) {
+      // Recreate grid helper with area-specific grid colors if needed
+      gridHelperRef.current.material.dispose();
+      const gridMat = gridHelperRef.current.material as THREE.LineBasicMaterial;
+      gridMat.color.set(location.terrainGridColor || '#38bdf8');
+    }
+  }, [design.locationId, location]);
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -146,14 +164,16 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
     scene.add(sunRayLine);
     sunRayLineRef.current = sunRayLine;
 
-    // Ground Grid & Terrain plane
-    const grid = new THREE.GridHelper(30, 30, 0x38bdf8, 0x1e293b);
+    // Ground Grid & Terrain plane reflecting Area Terrain
+    const gridColor1 = location?.terrainGridColor ? new THREE.Color(location.terrainGridColor).getHex() : 0x38bdf8;
+    const grid = new THREE.GridHelper(30, 30, gridColor1, 0x1e293b);
     grid.position.y = 0;
     scene.add(grid);
+    gridHelperRef.current = grid;
 
     const groundGeom = new THREE.PlaneGeometry(60, 60);
     const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x090d16,
+      color: location?.terrainColor ? new THREE.Color(location.terrainColor).getHex() : 0x090d16,
       roughness: 0.9,
       metalness: 0.1,
     });
@@ -162,6 +182,7 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
     ground.position.y = -0.01;
     ground.receiveShadow = true;
     scene.add(ground);
+    groundMeshRef.current = ground;
 
     // Compass dial on ground
     const compassGroup = createCompassDial();
@@ -593,6 +614,16 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
             </button>
           </div>
 
+          {/* Area-Specific CAD Identifier Badge */}
+          <div className="hidden md:flex items-center gap-2 bg-[#0c1829]/95 backdrop-blur-md border border-[#1f3352] px-3 py-1.5 rounded-lg pointer-events-auto shadow-lg text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+            <span className="font-bold text-amber-300">{location?.shortName || 'Area'}:</span>
+            <span className="text-slate-100 font-semibold truncate max-w-[200px]">{design.name}</span>
+            <span className="text-slate-400 text-[10px] hidden lg:inline">
+              ({location?.altitudeMeters}m MSL · {location?.climateZone.replace('_', ' ')})
+            </span>
+          </div>
+
           {/* Camera Presets & Toggles */}
           <div className="flex items-center gap-1.5 bg-[#0c1829]/90 backdrop-blur-md border border-[#1f3352] p-1.5 rounded-lg pointer-events-auto shadow-lg">
             <button
@@ -659,6 +690,12 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
         </div>
 
         <div className="hidden sm:flex items-center gap-3 text-[11px] text-slate-400">
+          {location && (
+            <span className="flex items-center gap-1 font-mono text-amber-300/90 hidden lg:inline">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              {location.shortName} ({location.latitude}°N, {location.longitude}°E)
+            </span>
+          )}
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             Orientation: {design.geometry.orientationDeg}° (True South)

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useDesign } from '../../store/designStore';
 import { AppView } from '../../types';
-import { getLocationById } from '../../data/climate';
+import { getLocationById, CLIMATE_LOCATIONS } from '../../data/climate';
 import {
   Compass,
   Box,
@@ -22,6 +22,7 @@ import {
   Flame,
   Globe,
   Award,
+  MapPin,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -32,6 +33,7 @@ export const Navbar: React.FC = () => {
     runSimulation,
     isSimulating,
     loadDemoDataset,
+    setAreaLocation,
     lang,
     setLang,
   } = useDesign();
@@ -131,22 +133,32 @@ export const Navbar: React.FC = () => {
 
         {/* Status & Quick Action Buttons */}
         <div className="flex items-center gap-2.5">
-          {/* Deployment Region Badge */}
-          <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-200 bg-[#091728] border border-[#1c3a5e] px-3 py-1.5 rounded-lg shadow-sm font-mono">
-            <Sun className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-semibold text-slate-100">{location.name}</span>
-            <span className="text-amber-400">({location.altitudeMeters}m MSL)</span>
+          {/* Dynamic Operational Sector / Area Selector */}
+          <div className="flex items-center gap-1.5 bg-[#091728] border border-[#1c3a5e] px-2.5 py-1 rounded-lg shadow-sm">
+            <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <label htmlFor="area-sector-select" className="text-[11px] font-bold text-slate-300 uppercase tracking-wider hidden sm:inline">
+              {lang === 'HI' ? 'क्षेत्र:' : 'Area:'}
+            </label>
+            <select
+              id="area-sector-select"
+              value={currentDesign.locationId}
+              onChange={(e) => setAreaLocation(e.target.value, true)}
+              className="bg-transparent text-xs font-bold text-amber-300 focus:outline-none cursor-pointer pr-1 py-0.5"
+              title="Select Defence Area / Climate Zone"
+            >
+              {CLIMATE_LOCATIONS.map((loc) => (
+                <option key={loc.id} value={loc.id} className="bg-[#0b1b2d] text-slate-100">
+                  {loc.shortName} ({loc.altitudeMeters}m MSL)
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Quick Demo Benchmark Loader */}
-          <button
-            onClick={() => loadDemoDataset('leh')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-300 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-600/50 rounded-lg shadow-sm transition"
-            title="Load DRDO Leh-Ladakh Standard Outpost Benchmark"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>{lang === 'HI' ? 'लेह बेंचमार्क' : 'Load Leh Benchmark'}</span>
-          </button>
+          {/* Area Sector Tag */}
+          <div className="hidden xl:flex items-center gap-1.5 text-xs text-slate-200 bg-[#091728]/90 border border-[#1c3a5e] px-2.5 py-1.5 rounded-lg shadow-sm font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-slate-300 font-semibold">{location?.zoneTitle || location?.region}</span>
+          </div>
 
           {/* Run Simulation Primary Action Button */}
           <button

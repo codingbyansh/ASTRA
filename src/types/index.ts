@@ -41,6 +41,7 @@ export interface LayeredAssembly {
 export interface ClimateLocation {
   id: string;
   name: string;
+  shortName: string;
   region: string;
   state: string;
   country: string;
@@ -54,6 +55,22 @@ export interface ClimateLocation {
   annualSolarRadiationKwhM2: number;
   drdoRelevanceNotes: string;
   description: string;
+  // Area-Specific Thermal Response & 3D Environment Properties
+  zoneTitle: string;
+  overviewHeadline: string;
+  overviewDescription: string;
+  recommendedShelterTitle: string;
+  primaryThermalChallenge: string;
+  keyPassiveStrategy: string;
+  terrainType: 'alpine_gravel' | 'snow_ice' | 'composite_earth' | 'thar_sand' | 'subtropical_green' | 'mountain_rock';
+  terrainColor: string;
+  terrainGridColor: string;
+  skyColor: string;
+  recommendedWallMaterialId: string;
+  recommendedWallThicknessMm: number;
+  recommendedOverhangM: number;
+  recommendedNightPurgeAch: number;
+  recommendedSolarAbsorptance: number;
 }
 
 export interface HourlyClimateData {

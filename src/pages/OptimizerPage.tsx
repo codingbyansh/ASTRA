@@ -78,7 +78,7 @@ export const OptimizerPage: React.FC = () => {
           {[
             {
               id: 'balanced_drdo_cold_climate',
-              title: `DRDO ${location?.zoneTitle || 'Tactical'} Spec`,
+              title: `ASTRA ${location?.zoneTitle || 'Regional'} Spec`,
               desc: `Maximizes thermal comfort, inertia and envelope resistance for ${location?.name || 'the deployment sector'}.`,
             },
             {

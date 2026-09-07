@@ -195,8 +195,8 @@ export const MATERIALS_DATABASE: Material[] = [
     solarAbsorptance: 0.30,
     embodiedCarbonKgCO2ePerKg: 4.50,
     costIndexINRPerM3: 16500,
-    sourceReference: 'IS 12436 / Military Engineer Services (MES)',
-    description: 'Ultra-low thermal conductivity foam ($k=0.022\\text{ W}/(\\text{m}\\cdot\\text{K})$). Used in modular prefabricated defence shelters.',
+    sourceReference: 'IS 12436 / Specialized Engineering Services',
+    description: 'Ultra-low thermal conductivity foam ($k=0.022\\text{ W}/(\\text{m}\\cdot\\text{K})$). Used in modular prefabricated high-performance shelters.',
     hexColor: '#e0c879',
   },
   {
@@ -371,7 +371,7 @@ export const GLAZING_DATABASE: Record<GlazingType, {
     shgc: 0.50,
     vlt: 0.65,
     costPerM2INR: 12500,
-    description: 'Extreme thermal barrier designed for Arctic and -30°C Himalayan high-altitude defense outposts.',
+    description: 'Extreme thermal barrier designed for Arctic and -30°C Himalayan high-altitude outpost shelters.',
   },
   polycarbonate: {
     name: 'Multiwall Polycarbonate Sheet (16mm Triple-Wall)',

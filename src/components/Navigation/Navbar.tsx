@@ -73,11 +73,13 @@ export const Navbar: React.FC = () => {
             </span>
             <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-slate-300 hidden sm:inline">
-              {lang === 'HI' ? 'रक्षा मंत्रालय' : 'Ministry of Defence'}
+              {lang === 'HI' ? 'राष्ट्रीय तापीय एवं आवास अनुसंधान' : 'National Thermal & Habitat Engineering'}
             </span>
             <span className="text-slate-600 hidden md:inline">|</span>
             <span className="text-amber-300/90 hidden md:inline font-mono text-[10px]">
-              {lang === 'HI' ? 'परियोजना एस्ट्रा (ASTRA) · डीआरडीओ - डिहार पोर्टल' : 'PROJECT ASTRA · DRDO DIHAR DEFENCE PORTAL'}
+              {lang === 'HI'
+                ? 'परियोजना एस्ट्रा · क्षेत्र-विशिष्ट तापीय प्रतिक्रिया विश्लेषक मंच'
+                : 'ASTRA · AREA-SPECIFIC THERMAL RESPONSE ANALYZER PLATFORM'}
             </span>
           </div>
 
@@ -102,9 +104,9 @@ export const Navbar: React.FC = () => {
 
       {/* 3. Main Government Portal Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
-        {/* State Emblem & DRDO Portal Identity */}
+        {/* State Emblem & Platform Identity */}
         <div className="flex items-center gap-3.5">
-          {/* DRDO Golden Emblem Badge */}
+          {/* ASTRA Golden Shield Emblem */}
           <div className="w-11 h-11 rounded-lg bg-gradient-to-b from-[#1b3b61] to-[#0c1f33] border-2 border-amber-500/80 flex flex-col items-center justify-center text-amber-400 shadow-md shrink-0">
             <Shield className="w-6 h-6 text-amber-400 stroke-[1.75]" />
           </div>
@@ -115,17 +117,17 @@ export const Navbar: React.FC = () => {
                 ASTRA
               </span>
               <span className="text-[11px] font-bold tracking-wider text-slate-300 bg-[#091728] px-2 py-0.5 rounded border border-[#1c3a5e] uppercase">
-                DRDO · DIHAR
+                THERMAL SIMULATION PLATFORM
               </span>
-              <span className="text-xs text-slate-300 font-semibold hidden sm:inline">
-                {lang === 'HI' ? 'रक्षा अनुसंधान एवं विकास संगठन' : 'Defence Research & Development Organisation'}
+              <span className="text-xs text-amber-300/90 font-medium hidden sm:inline">
+                {lang === 'HI' ? 'क्षेत्र-विशिष्ट तापीय प्रतिक्रिया विश्लेषक' : 'Area-Specific Thermal Response Analyzer'}
               </span>
             </div>
-            <h1 className="text-sm sm:text-base font-black text-white tracking-tight flex items-center gap-2 mt-0.5">
+            <h1 className="text-base sm:text-lg font-black text-white tracking-tight flex items-center gap-2 mt-0.5">
               <span>
                 {lang === 'HI'
-                  ? 'परियोजना एस्ट्रा (ASTRA): रक्षा आवास तापीय आराम एवं सीएडी इंजीनियरिंग मंच'
-                  : 'ASTRA: Defence Passive Shelter Thermal Comfort & CAD Engineering Platform'}
+                  ? 'एस्ट्रा (ASTRA) — क्षेत्र-विशिष्ट तापीय प्रतिक्रिया विश्लेषक मंच'
+                  : 'ASTRA — Area-Specific Thermal Response Analyzer Platform'}
               </span>
             </h1>
           </div>
@@ -144,7 +146,7 @@ export const Navbar: React.FC = () => {
               value={currentDesign.locationId}
               onChange={(e) => setAreaLocation(e.target.value, true)}
               className="bg-transparent text-xs font-bold text-amber-300 focus:outline-none cursor-pointer pr-1 py-0.5"
-              title="Select Defence Area / Climate Zone"
+              title="Select Area / Climate Zone"
             >
               {CLIMATE_LOCATIONS.map((loc) => (
                 <option key={loc.id} value={loc.id} className="bg-[#0b1b2d] text-slate-100">

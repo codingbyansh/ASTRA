@@ -67,15 +67,15 @@ export const ReportsPage: React.FC = () => {
         ref={reportRef}
         className="bg-white text-slate-900 border border-slate-200 rounded-xl p-8 space-y-8 shadow-sm max-w-4xl mx-auto print:border-none print:p-0 print:shadow-none"
       >
-        {/* Document Header with National Emblem / DRDO Header */}
+        {/* Document Header with ASTRA Platform Header */}
         <div className="border-b-2 border-amber-600 pb-6 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-800 uppercase tracking-widest">
               <Shield className="w-4 h-4 text-amber-700" />
-              <span>DEFENCE RESEARCH & DEVELOPMENT ORGANISATION (DRDO) · PROJECT ASTRA</span>
+              <span>ASTRA — AREA-SPECIFIC THERMAL RESPONSE ANALYZER PLATFORM</span>
             </div>
             <span className="text-xs font-mono text-slate-500 font-bold">
-              Ref: DRDO-ASTRA-TR-2026-09
+              Ref: ASTRA-TR-2026-09
             </span>
           </div>
 
@@ -287,10 +287,10 @@ export const ReportsPage: React.FC = () => {
         {/* Sign-off Footer */}
         <div className="pt-8 border-t border-slate-200 flex justify-between text-xs font-mono text-slate-500">
           <div>
-            <span>Platform: Project ASTRA (Defence Passive Thermal Engine v2.4)</span>
+            <span>Platform: ASTRA (Area-Specific Thermal Response Analyzer v2.4)</span>
           </div>
           <div>
-            <span>Certified: DRDO DIHAR Field Habitat Protocol · Project ASTRA Clearance</span>
+            <span>Certified: ASTRA Field Habitat Protocol · Area-Specific Thermal Response Analyzer</span>
           </div>
         </div>
       </div>

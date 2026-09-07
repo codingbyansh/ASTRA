@@ -61,7 +61,7 @@ export const OverviewPage: React.FC = () => {
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed">
               {location?.overviewDescription ||
-                `Area-specific passive solar and thermal comfort optimization portal for Indian Armed Forces outposts across ${location?.name}.`}
+                `Area-specific passive solar and thermal comfort optimization platform across ${location?.name}.`}
             </p>
           </div>
 

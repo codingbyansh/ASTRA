@@ -1,6 +1,6 @@
 {
-  "name": "ASTRA — Area-Specific Thermal Response Analyzer",
-  "description": "ASTRA (Area-Specific Thermal Response Analyzer): Advanced DRDO scientific engineering platform for area-wise passive defense shelter thermal analysis, dynamic 3D solar-thermal response, multi-climate CAD design, and validated thermal comfort optimization across Himalayan alpine, cold desert, hot arid, composite, and humid operational sectors.",
+  "name": "ASTRA — Area-Specific Thermal Response Analyzer Platform",
+  "description": "ASTRA — Area-Specific Thermal Response Analyzer Platform: scientific engineering platform for area-wise passive shelter thermal analysis, dynamic 3D solar-thermal response, multi-climate CAD design, and validated thermal comfort optimization.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

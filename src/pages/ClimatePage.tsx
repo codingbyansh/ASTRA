@@ -58,7 +58,7 @@ export const ClimatePage: React.FC = () => {
             <h2 className="text-lg font-bold text-slate-900">ASTRA Area-Specific Climate & Solar Engine</h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
-            Standardized IMD, ISHRAE & NASA POWER hourly climatological profiles for defence deployment zones.
+            Standardized IMD, ISHRAE & NASA POWER hourly climatological profiles for regional deployment zones.
           </p>
         </div>
 
@@ -215,11 +215,11 @@ export const ClimatePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Operational Strategic Notes for DRDO */}
+        {/* Operational Strategic Notes */}
         <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
             <Shield className="w-4 h-4 text-amber-700" />
-            <span>DRDO Defence Shelter Thermal Strategic Assessment</span>
+            <span>ASTRA Area-Specific Shelter Thermal Strategic Assessment</span>
           </div>
           <p className="text-xs text-slate-700 leading-relaxed">
             {activeLoc.drdoRelevanceNotes}

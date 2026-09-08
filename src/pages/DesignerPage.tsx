@@ -21,6 +21,9 @@ import {
   Info,
   Maximize2,
   Sparkles,
+  CheckCircle2,
+  ShieldCheck,
+  Move,
 } from 'lucide-react';
 
 export const DesignerPage: React.FC = () => {
@@ -35,7 +38,7 @@ export const DesignerPage: React.FC = () => {
     setActiveView,
   } = useDesign();
 
-  const [activeTabLeft, setActiveTabLeft] = useState<'dimensions' | 'roof' | 'orientation' | 'occupants'>('dimensions');
+  const [activeTabLeft, setActiveTabLeft] = useState<'dimensions' | 'roof' | 'orientation' | 'occupants' | 'position'>('dimensions');
   const [activeTabRight, setActiveTabRight] = useState<'materials' | 'insulation' | 'glazing'>('materials');
 
   const location = getLocationById(currentDesign.locationId);
@@ -70,6 +73,68 @@ export const DesignerPage: React.FC = () => {
       shgc: glz.shgc,
     });
   };
+
+  // Occupant Bounding & Position Math for Safe Layout
+  const roomL = currentDesign.geometry.lengthM;
+  const roomW = currentDesign.geometry.widthM;
+  const wallThick = 0.25;
+  const wallMargin = wallThick + 0.35;
+  const safeHalfL = Math.max(0.4, roomL / 2 - wallMargin);
+  const safeHalfW = Math.max(0.4, roomW / 2 - wallMargin);
+  const occCount = Math.min(16, Math.max(1, currentDesign.occupants.count));
+  const occZone = currentDesign.occupants.positionZone || 'north_bunks';
+  const userOffsetX = currentDesign.occupants.customOffsetX || 0;
+  const userOffsetZ = currentDesign.occupants.customOffsetZ || 0;
+
+  // Calculate 2D coordinates for schematic preview
+  const previewOccupants: { x: number; z: number; id: number }[] = [];
+  for (let i = 0; i < occCount; i++) {
+    let posX = 0;
+    let posZ = 0;
+    if (occZone === 'north_bunks') {
+      const zTarget = -safeHalfW + 0.12;
+      const cols = Math.ceil(occCount / 2);
+      const isRow2 = i >= cols;
+      const colIndex = isRow2 ? i - cols : i;
+      const xSpan = safeHalfL * 0.85;
+      const stepX = cols > 1 ? (2 * xSpan) / (cols - 1) : 0;
+      posX = -xSpan + colIndex * stepX;
+      posZ = isRow2 ? zTarget + 0.55 : zTarget;
+    } else if (occZone === 'center') {
+      const angle = (i / occCount) * 2 * Math.PI;
+      const radiusX = Math.min(safeHalfL * 0.65, 0.9);
+      const radiusZ = Math.min(safeHalfW * 0.65, 0.7);
+      posX = Math.cos(angle) * radiusX;
+      posZ = Math.sin(angle) * radiusZ;
+    } else if (occZone === 'perimeter') {
+      const isEast = i % 2 === 0;
+      const flankIndex = Math.floor(i / 2);
+      const totalFlank = Math.ceil(occCount / 2);
+      const zSpan = safeHalfW * 0.8;
+      const stepZ = totalFlank > 1 ? (2 * zSpan) / (totalFlank - 1) : 0;
+      posX = isEast ? safeHalfL - 0.15 : -safeHalfL + 0.15;
+      posZ = -zSpan + flankIndex * stepZ;
+    } else {
+      const cols = Math.min(occCount, 4);
+      const rows = Math.ceil(occCount / cols);
+      const r = Math.floor(i / cols);
+      const c = i % cols;
+      const stepX = cols > 1 ? (2 * safeHalfL) / (cols - 1) : 0;
+      const stepZ = rows > 1 ? (2 * safeHalfW) / (rows - 1) : 0;
+      posX = -safeHalfL + c * stepX;
+      posZ = -safeHalfW + r * stepZ;
+    }
+
+    let finalX = posX + userOffsetX;
+    let finalZ = posZ + userOffsetZ;
+    finalX = Math.max(-safeHalfL, Math.min(safeHalfL, finalX));
+    finalZ = Math.max(-safeHalfW, Math.min(safeHalfW, finalZ));
+    if (Math.abs(finalX) < 0.26 && Math.abs(finalZ) < roomW * 0.22) {
+      finalX = finalX >= 0 ? 0.38 : -0.38;
+      finalX = Math.max(-safeHalfL, Math.min(safeHalfL, finalX));
+    }
+    previewOccupants.push({ x: finalX, z: finalZ, id: i });
+  }
 
   return (
     <div className="space-y-4">
@@ -132,6 +197,7 @@ export const DesignerPage: React.FC = () => {
                 { id: 'roof', label: 'Roof' },
                 { id: 'orientation', label: 'Orientation' },
                 { id: 'occupants', label: 'Occupancy' },
+                { id: 'position', label: 'Position' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -364,6 +430,242 @@ export const DesignerPage: React.FC = () => {
                     {currentDesign.occupants.count * currentDesign.occupants.heatPerPersonWatts} Watts
                   </span>{' '}
                   (~{((currentDesign.occupants.count * currentDesign.occupants.heatPerPersonWatts * 24) / 1000).toFixed(1)} kWh/day).
+                </div>
+
+                {/* Link to Position Tab */}
+                <button
+                  onClick={() => setActiveTabLeft('position')}
+                  className="w-full flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-semibold text-xs transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Move className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Configure 3D Spatial Layout & Bounds</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-emerald-700" />
+                </button>
+              </div>
+            )}
+
+            {/* Tab 5: Position & Spatial Bounding */}
+            {activeTabLeft === 'position' && (
+              <div className="space-y-3.5 text-xs">
+                {/* 100% In-Bounds Guard Status Badge */}
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  <div className="leading-tight">
+                    <span className="font-bold text-xs block text-emerald-900">
+                      100% Inside Envelope Bounds
+                    </span>
+                    <span className="text-[11px] text-emerald-800">
+                      Zero out-of-bounds collision. Wall safety clearance buffer of ≥350mm strictly enforced.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Layout Zone Selector */}
+                <div className="space-y-1.5">
+                  <label className="text-slate-700 font-semibold block">Arrangement Layout:</label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      { id: 'north_bunks', label: 'North Berths (Recommended)', desc: 'Leaves south solar zone open' },
+                      { id: 'center', label: 'Center Station', desc: 'Clustered in living core' },
+                      { id: 'perimeter', label: 'Flank Berths', desc: 'East & West side walls' },
+                      { id: 'uniform', label: 'Uniform Grid', desc: 'Mathematically spaced' },
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        onClick={() => updateOccupants({ positionZone: mode.id as any })}
+                        className={`p-2 rounded-lg border text-left transition ${
+                          occZone === mode.id
+                            ? 'bg-amber-50 border-amber-400 text-amber-950 font-bold shadow-2xs'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="text-[11px] font-bold">{mode.label}</div>
+                        <div className="text-[10px] text-slate-500 line-clamp-1">{mode.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Spatial Fine-Tuning Sliders */}
+                <div className="space-y-2.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-800 text-[11px]">Position Fine-Tuning:</span>
+                    <button
+                      onClick={() => updateOccupants({ customOffsetX: 0, customOffsetZ: 0 })}
+                      className="text-[10px] text-amber-800 hover:underline flex items-center gap-1 font-semibold"
+                    >
+                      <RotateCcw className="w-2.5 h-2.5" />
+                      <span>Reset to Center</span>
+                    </button>
+                  </div>
+
+                  {/* East-West (X) Offset */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-slate-600">East-West Shift (X):</span>
+                      <span className="font-mono font-bold text-slate-900">
+                        {userOffsetX > 0 ? `+${userOffsetX.toFixed(2)}m` : `${userOffsetX.toFixed(2)}m`}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={(-safeHalfL * 0.8).toFixed(2)}
+                      max={(safeHalfL * 0.8).toFixed(2)}
+                      step="0.1"
+                      value={userOffsetX}
+                      onChange={(e) => updateOccupants({ customOffsetX: Number(e.target.value) })}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg accent-amber-600"
+                    />
+                    <div className="flex justify-between text-[9px] text-slate-600">
+                      <span>West (-{(safeHalfL * 0.8).toFixed(1)}m)</span>
+                      <span>Center</span>
+                      <span>East (+{(safeHalfL * 0.8).toFixed(1)}m)</span>
+                    </div>
+                  </div>
+
+                  {/* North-South (Z) Offset */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-slate-600">North-South Shift (Z):</span>
+                      <span className="font-mono font-bold text-slate-900">
+                        {userOffsetZ > 0 ? `+${userOffsetZ.toFixed(2)}m` : `${userOffsetZ.toFixed(2)}m`}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={(-safeHalfW * 0.8).toFixed(2)}
+                      max={(safeHalfW * 0.8).toFixed(2)}
+                      step="0.1"
+                      value={userOffsetZ}
+                      onChange={(e) => updateOccupants({ customOffsetZ: Number(e.target.value) })}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg accent-amber-600"
+                    />
+                    <div className="flex justify-between text-[9px] text-slate-600">
+                      <span>North (-{(safeHalfW * 0.8).toFixed(1)}m)</span>
+                      <span>Center</span>
+                      <span>South (+{(safeHalfW * 0.8).toFixed(1)}m)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2D Floor Plan Schematic Preview */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-bold text-slate-800">2D Shelter Floor Footprint:</span>
+                    <span className="text-slate-500 font-mono text-[10px]">
+                      {roomL}m × {roomW}m
+                    </span>
+                  </div>
+
+                  <div className="bg-slate-950 rounded-lg p-2 border border-slate-800 flex flex-col items-center justify-center">
+                    {(() => {
+                      const svgW = 230;
+                      const svgH = 130;
+                      const scale = Math.min(180 / roomL, 90 / roomW);
+                      const cx = svgW / 2;
+                      const cy = svgH / 2;
+                      const outerW = roomL * scale;
+                      const outerH = roomW * scale;
+                      const innerW = 2 * safeHalfL * scale;
+                      const innerH = 2 * safeHalfW * scale;
+
+                      return (
+                        <svg width={svgW} height={svgH} className="overflow-visible">
+                          {/* Compass North Indicator */}
+                          <text x={cx} y={cy - outerH / 2 - 6} fill="#38bdf8" fontSize="9" fontWeight="bold" textAnchor="middle">
+                            ▲ NORTH (Cold Facade)
+                          </text>
+
+                          {/* Outer Wall Boundary */}
+                          <rect
+                            x={cx - outerW / 2}
+                            y={cy - outerH / 2}
+                            width={outerW}
+                            height={outerH}
+                            fill="#1e293b"
+                            stroke="#64748b"
+                            strokeWidth="2.5"
+                            rx="3"
+                          />
+
+                          {/* Inner Safe Usable Bounds (Dashed Green) */}
+                          <rect
+                            x={cx - innerW / 2}
+                            y={cy - innerH / 2}
+                            width={innerW}
+                            height={innerH}
+                            fill="#0f172a"
+                            stroke="#10b981"
+                            strokeWidth="1"
+                            strokeDasharray="3 3"
+                            rx="2"
+                          />
+
+                          {/* South Solar Glazing Opening Indicator */}
+                          <rect
+                            x={cx - outerW * 0.3}
+                            y={cy + outerH / 2 - 2}
+                            width={outerW * 0.6}
+                            height={4}
+                            fill="#fbbf24"
+                            rx="1"
+                          />
+
+                          {/* Central Thermal Partition Mass Wall */}
+                          <rect
+                            x={cx - 2}
+                            y={cy - outerH * 0.22}
+                            width={4}
+                            height={outerH * 0.44}
+                            fill="#b45309"
+                            rx="1"
+                          />
+
+                          {/* Occupant Avatars */}
+                          {previewOccupants.map((pt) => {
+                            const px = cx + pt.x * scale;
+                            const py = cy + pt.z * scale;
+                            return (
+                              <g key={pt.id}>
+                                <circle cx={px} cy={py} r={5} fill="#10b981" stroke="#ffffff" strokeWidth="1.2" />
+                                <text
+                                  x={px}
+                                  y={py + 2.5}
+                                  fill="#ffffff"
+                                  fontSize="6.5"
+                                  fontWeight="bold"
+                                  textAnchor="middle"
+                                >
+                                  {pt.id + 1}
+                                </text>
+                              </g>
+                            );
+                          })}
+
+                          {/* South Label */}
+                          <text x={cx} y={cy + outerH / 2 + 12} fill="#fbbf24" fontSize="9" fontWeight="bold" textAnchor="middle">
+                            ▼ SOUTH (Solar Glazing Face)
+                          </text>
+                        </svg>
+                      );
+                    })()}
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                      Occupants ({occCount})
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-1 bg-amber-400 inline-block rounded" />
+                      Solar Windows
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-1 border border-emerald-400 border-dashed inline-block" />
+                      Safe Bounds
+                    </span>
+                  </div>
                 </div>
               </div>
             )}

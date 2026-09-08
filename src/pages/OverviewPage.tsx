@@ -22,6 +22,8 @@ import {
   Shield,
 } from 'lucide-react';
 
+import { ThermalComfortDiagnostic } from '../components/ThermalComfortDiagnostic';
+
 export const OverviewPage: React.FC = () => {
   const {
     currentDesign,
@@ -162,6 +164,9 @@ export const OverviewPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Dynamic Thermal Comfort Diagnostic & Instant Remedy Tool */}
+      <ThermalComfortDiagnostic />
 
       {/* Main Grid: 3D CAD Preview + Climate & Assembly Profile */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

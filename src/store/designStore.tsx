@@ -64,6 +64,9 @@ export const DEFAULT_LEH_DEMO_DESIGN: ShelterDesign = {
     heatPerPersonWatts: 110,
     applianceWatts: 150,
     schedule: 'continuous',
+    positionZone: 'north_bunks',
+    customOffsetX: 0,
+    customOffsetZ: 0,
   },
   simulationSettings: {
     durationHours: 24,
@@ -376,6 +379,7 @@ interface DesignContextType {
   updateOpenings: (openings: Partial<ShelterDesign['openings']>) => void;
   updateOccupants: (occupants: Partial<ShelterDesign['occupants']>) => void;
   updateSimulationSettings: (settings: Partial<ShelterDesign['simulationSettings']>) => void;
+  applyHighComfortSpec: () => void;
 }
 
 const DesignContext = createContext<DesignContextType | undefined>(undefined);
@@ -568,6 +572,66 @@ export const DesignProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }));
   };
 
+  const applyHighComfortSpec = () => {
+    setIsSimulating(true);
+    setCurrentDesign((prev) => {
+      const loc = getLocationById(prev.locationId) || CLIMATE_LOCATIONS[0];
+      const isCold = loc.climateZone.includes('cold');
+      const isHot = loc.climateZone.includes('hot');
+
+      const optimized: ShelterDesign = {
+        ...prev,
+        geometry: {
+          ...prev.geometry,
+          orientationAzimuthDeg: 0, // True South for maximum solar gain
+          roofOverhangDepthM: isHot ? 1.0 : 0.45,
+        },
+        envelope: {
+          ...prev.envelope,
+          insulationMaterialId: 'extruded_polystyrene_xps',
+          insulationThicknessMm: isCold ? 120 : 75,
+          roofInsulationThicknessMm: isCold ? 120 : 100,
+          wallThicknessMm: isCold ? 380 : 300,
+          wallSolarAbsorptance: isHot ? 0.35 : 0.75,
+          roofSolarAbsorptance: isHot ? 0.25 : 0.75,
+        },
+        openings: {
+          ...prev.openings,
+          glazingType: isCold ? 'double_low_e' : 'double_tinted',
+          windowAreaSouthM2: isCold ? Math.min(5.6, Math.max(3.8, prev.geometry.lengthM * 0.7)) : 1.5,
+          windowAreaNorthM2: 0.5,
+          windowAreaEastM2: isCold ? 0.8 : 0.4,
+          windowAreaWestM2: 0.2,
+          totalWindowAreaM2: (isCold ? Math.min(5.6, Math.max(3.8, prev.geometry.lengthM * 0.7)) : 1.5) + 0.5 + (isCold ? 0.8 : 0.4) + 0.2,
+          nightShutterInstalled: true,
+          nightShutterRValue: 0.65,
+          ventilationRateAchNight: isCold ? 0.35 : 1.8,
+          ventilationRateAchDay: isCold ? 0.6 : 0.8,
+        },
+        occupants: {
+          ...prev.occupants,
+          positionZone: 'north_bunks',
+          customOffsetX: 0,
+          customOffsetZ: 0,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+
+      setTimeout(() => {
+        try {
+          const res = runThermalSimulation(optimized);
+          setCurrentSimulationResult(res);
+        } catch (e) {
+          console.error('Auto comfort simulation error:', e);
+        } finally {
+          setIsSimulating(false);
+        }
+      }, 250);
+
+      return optimized;
+    });
+  };
+
   return (
     <DesignContext.Provider
       value={{
@@ -596,6 +660,7 @@ export const DesignProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateOpenings,
         updateOccupants,
         updateSimulationSettings,
+        applyHighComfortSpec,
       }}
     >
       {children}

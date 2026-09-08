@@ -17,6 +17,7 @@ import {
   Layers,
   Flame,
   Grid,
+  Users,
 } from 'lucide-react';
 
 interface Shelter3DViewerProps {
@@ -38,6 +39,7 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
   const [viewMode, setViewMode] = useState<'realistic' | 'wireframe' | 'thermal_heatmap' | 'cutaway'>('realistic');
   const [showDimensions, setShowDimensions] = useState(true);
   const [showSunPath, setShowSunPath] = useState(true);
+  const [showOccupants, setShowOccupants] = useState(true);
   const [hour, setHour] = useState(selectedHour);
 
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -469,25 +471,129 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
     doorMesh.position.set(L / 2 - 1.0, 1.2, W / 2 + 0.01);
     group.add(doorMesh);
 
-    // 5. Internal Thermal Mass Visualizer (when in cutaway view)
-    if (viewMode === 'cutaway') {
-      // Internal partition thermal mass wall & occupants
-      const massGeom = new THREE.BoxGeometry(0.3, H * 0.8, W * 0.5);
+    // 5. Internal Thermal Mass & Occupants Visualizer
+    if (viewMode === 'cutaway' || showOccupants) {
+      // Internal partition thermal mass wall
+      const massGeom = new THREE.BoxGeometry(0.24, H * 0.75, Math.min(W * 0.4, 2.0));
       const massMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.9 });
       const massWall = new THREE.Mesh(massGeom, massMat);
-      massWall.position.set(0, 0.2 + (H * 0.8) / 2, 0);
+      massWall.position.set(0, 0.2 + (H * 0.75) / 2, 0);
       massWall.castShadow = true;
       group.add(massWall);
 
-      // Occupant cylinder indicators
-      const occupantGeom = new THREE.CylinderGeometry(0.2, 0.2, 1.6, 12);
-      const occupantMat = new THREE.MeshStandardMaterial({ color: 0x10b981 });
-      for (let i = 0; i < Math.min(8, design.occupants.count); i++) {
-        const occMesh = new THREE.Mesh(occupantGeom, occupantMat);
-        const offsetX = -L / 3 + (i % 4) * 0.9;
-        const offsetZ = -W / 3 + Math.floor(i / 4) * 1.2;
-        occMesh.position.set(offsetX, 1.0, offsetZ);
-        group.add(occMesh);
+      // Safe Interior Room Boundary Calculation:
+      // Exterior dimensions: Length = L, Width = W.
+      // Wall thickness = wallThick (0.25m).
+      // Safety clearance buffer to inner wall face = 0.35m.
+      const wallMargin = wallThick + 0.35;
+      const safeHalfL = Math.max(0.4, L / 2 - wallMargin);
+      const safeHalfW = Math.max(0.4, W / 2 - wallMargin);
+
+      const zone = design.occupants.positionZone || 'north_bunks';
+      const count = Math.min(16, Math.max(1, design.occupants.count));
+
+      // User custom fine-tuning offsets
+      const userOffsetX = design.occupants.customOffsetX || 0;
+      const userOffsetZ = design.occupants.customOffsetZ || 0;
+
+      // Occupant visual materials & geometries
+      const bodyGeom = new THREE.CylinderGeometry(0.18, 0.16, 0.95, 14);
+      const headGeom = new THREE.SphereGeometry(0.14, 14, 14);
+      const haloGeom = new THREE.TorusGeometry(0.22, 0.02, 8, 20);
+
+      const bodyMat = new THREE.MeshStandardMaterial({
+        color: 0x10b981, // Emerald active personnel
+        roughness: 0.5,
+        metalness: 0.1,
+      });
+      const headMat = new THREE.MeshStandardMaterial({
+        color: 0xfcd34d, // Warm head
+        roughness: 0.6,
+      });
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: 0xf59e0b, // Sensible thermal radiation ring
+      });
+
+      for (let i = 0; i < count; i++) {
+        let posX = 0;
+        let posZ = 0;
+
+        if (zone === 'north_bunks') {
+          // Cold-climate passive solar arrangement: Bunks placed along the well-insulated North wall (-Z)
+          // keeping the South window zone open for direct solar heat ingress
+          const zTarget = -safeHalfW + 0.12;
+          const cols = Math.ceil(count / 2);
+          const isRow2 = i >= cols;
+          const colIndex = isRow2 ? i - cols : i;
+          const xSpan = safeHalfL * 0.85;
+          const stepX = cols > 1 ? (2 * xSpan) / (cols - 1) : 0;
+          posX = -xSpan + colIndex * stepX;
+          posZ = isRow2 ? zTarget + 0.55 : zTarget;
+        } else if (zone === 'center') {
+          // Central workstation / community cluster
+          const angle = (i / count) * 2 * Math.PI;
+          const radiusX = Math.min(safeHalfL * 0.65, 0.9);
+          const radiusZ = Math.min(safeHalfW * 0.65, 0.7);
+          posX = Math.cos(angle) * radiusX;
+          posZ = Math.sin(angle) * radiusZ;
+        } else if (zone === 'perimeter') {
+          // Flank berths along East and West walls
+          const isEast = i % 2 === 0;
+          const flankIndex = Math.floor(i / 2);
+          const totalFlank = Math.ceil(count / 2);
+          const zSpan = safeHalfW * 0.8;
+          const stepZ = totalFlank > 1 ? (2 * zSpan) / (totalFlank - 1) : 0;
+          posX = isEast ? safeHalfL - 0.15 : -safeHalfL + 0.15;
+          posZ = -zSpan + flankIndex * stepZ;
+        } else {
+          // 'uniform' layout: neat grid
+          const cols = Math.min(count, 4);
+          const rows = Math.ceil(count / cols);
+          const r = Math.floor(i / cols);
+          const c = i % cols;
+          const stepX = cols > 1 ? (2 * safeHalfL) / (cols - 1) : 0;
+          const stepZ = rows > 1 ? (2 * safeHalfW) / (rows - 1) : 0;
+          posX = -safeHalfL + c * stepX;
+          posZ = -safeHalfW + r * stepZ;
+        }
+
+        // Apply custom user offset and STRICTLY CLAMP within safe bounds
+        let finalX = posX + userOffsetX;
+        let finalZ = posZ + userOffsetZ;
+
+        // Hard Boundary Clamp: strictly enforces that no occupant can ever exceed safe interior envelope
+        finalX = Math.max(-safeHalfL, Math.min(safeHalfL, finalX));
+        finalZ = Math.max(-safeHalfW, Math.min(safeHalfW, finalZ));
+
+        // Partition Wall Collision Avoidance (Mass wall is at X=0, width Z=W*0.4, thickness 0.24)
+        if (Math.abs(finalX) < 0.26 && Math.abs(finalZ) < W * 0.22) {
+          finalX = finalX >= 0 ? 0.38 : -0.38;
+          finalX = Math.max(-safeHalfL, Math.min(safeHalfL, finalX));
+        }
+
+        // Create detailed occupant avatar mesh
+        const personGroup = new THREE.Group();
+
+        // Torso: standing on floor (floor top is y=0.2, center at 0.2 + 0.48 = 0.68)
+        const bodyMesh = new THREE.Mesh(bodyGeom, bodyMat);
+        bodyMesh.position.set(0, 0.68, 0);
+        bodyMesh.castShadow = true;
+        personGroup.add(bodyMesh);
+
+        // Head: at y = 1.28
+        const headMesh = new THREE.Mesh(headGeom, headMat);
+        headMesh.position.set(0, 1.28, 0);
+        headMesh.castShadow = true;
+        personGroup.add(headMesh);
+
+        // Thermal Sensible Heat Radiation Halo
+        const haloMesh = new THREE.Mesh(haloGeom, haloMat);
+        haloMesh.rotation.x = Math.PI / 2;
+        haloMesh.position.set(0, 1.44, 0);
+        personGroup.add(haloMesh);
+
+        personGroup.position.set(finalX, 0, finalZ);
+        group.add(personGroup);
       }
     }
 
@@ -496,7 +602,7 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
       const dimGroup = createDimensionLines(L, W, H);
       group.add(dimGroup);
     }
-  }, [design, viewMode, showDimensions]);
+  }, [design, viewMode, showDimensions, showOccupants]);
 
   // Update Solar Position & Ray-Casting
   useEffect(() => {
@@ -660,6 +766,13 @@ export const Shelter3DViewer: React.FC<Shelter3DViewerProps> = ({
               title="Toggle Sun Position Vector"
             >
               <Sun className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setShowOccupants(!showOccupants)}
+              className={`p-1.5 rounded transition ${showOccupants ? 'text-emerald-400 bg-[#162a47]' : 'text-slate-400 hover:bg-[#162a47]'}`}
+              title={`Toggle Personnel Occupants (${design.occupants.count} personnel)`}
+            >
+              <Users className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

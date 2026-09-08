@@ -34,6 +34,7 @@ import {
   ReferenceArea,
   ReferenceLine,
 } from 'recharts';
+import { ThermalComfortDiagnostic } from '../components/ThermalComfortDiagnostic';
 
 export const SimulationPage: React.FC = () => {
   const {
@@ -209,6 +210,9 @@ export const SimulationPage: React.FC = () => {
           </span>
         </div>
       </div>
+
+      {/* Thermal Comfort Diagnostic & Quick Fix Explainer */}
+      <ThermalComfortDiagnostic />
 
       {/* Chart Selector & Interactive Viewport */}
       <div className="bg-white border border-slate-200 p-5 rounded-xl space-y-4 shadow-sm">

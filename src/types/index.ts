@@ -136,6 +136,9 @@ export interface ShelterOccupants {
   heatPerPersonWatts: number; // ~90W to 140W sensible
   applianceWatts: number;
   schedule: 'continuous' | 'night_only' | 'day_only';
+  positionZone?: 'north_bunks' | 'center' | 'perimeter' | 'uniform';
+  customOffsetX?: number; // relative offset in meters (-1 to +1 normalized or absolute)
+  customOffsetZ?: number;
 }
 
 export interface SimulationSettings {

@@ -123,8 +123,10 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
   const windowU = design.openings.windowUValue || glazingInfo.uValue;
   const windowSHGC = design.openings.shgc || glazingInfo.shgc;
 
-  // Thermal Capacitance Calculation (J/K)
-  const airDensity = 1.15; // kg/m3 (adjusted for high altitude 3500m barometric pressure)
+  // Atmospheric barometric pressure and altitude-adjusted air density based on International Standard Atmosphere (ISA)
+  // Accounts for thin mountain air (e.g. 65 kPa at 3500m MSL in Ladakh) down to sea-level plains (101.3 kPa)
+  const barometricPressureKPa = 101.325 * Math.pow(1 - 2.25577e-5 * location.altitudeMeters, 5.25588);
+  const airDensity = Math.max(0.70, Math.min(1.25, 1.225 * (barometricPressureKPa / 101.325)));
   const airCp = 1005; // J/(kg*K)
   const cAir = geo.enclosedVolumeM3 * airDensity * airCp;
 
@@ -155,11 +157,14 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
   let minOutdoorTemp = 100;
   let maxOutdoorTemp = -100;
   let sumOutdoorTemp = 0;
+  let maxSolAirRoofC = -100;
 
   let totalSolarKwh = 0;
   let totalCondLossKwh = 0;
   let totalVentLossKwh = 0;
   let totalIntGainKwh = 0;
+  let totalHeatingDemandKwh = 0;
+  let totalCoolingDemandKwh = 0;
   let comfortHours = 0;
   let underheatingDegreeHours = 0;
   let overheatingDegreeHours = 0;
@@ -222,6 +227,7 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
       0.90,
       true
     );
+    maxSolAirRoofC = Math.max(maxSolAirRoofC, solAirRoof);
 
     // Dynamic Night Shutter adjustment on windows
     let effectiveWindowU = windowU;
@@ -300,14 +306,20 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
     totalVentLossKwh += Math.max(0, -qVentAccum) / 1000;
     totalIntGainKwh += qInternal / 1000;
 
-    // Comfort evaluation
+    // Comfort evaluation & thermal energy demand
     const isComfortable = currentIndoorTempC >= comfortLower && currentIndoorTempC <= comfortUpper;
     if (isComfortable) {
       comfortHours++;
     } else if (currentIndoorTempC < comfortLower) {
-      underheatingDegreeHours += comfortLower - currentIndoorTempC;
+      const deficitDeg = comfortLower - currentIndoorTempC;
+      underheatingDegreeHours += deficitDeg;
+      // Sensible auxiliary heating required to maintain comfortLower: m * Cp * deltaT / 3600
+      totalHeatingDemandKwh += (ventHeatCapacityRate * deficitDeg) / 1000;
     } else if (currentIndoorTempC > comfortUpper) {
-      overheatingDegreeHours += currentIndoorTempC - comfortUpper;
+      const excessDeg = currentIndoorTempC - comfortUpper;
+      overheatingDegreeHours += excessDeg;
+      // Sensible auxiliary cooling required to bring to comfortUpper:
+      totalCoolingDemandKwh += (ventHeatCapacityRate * excessDeg) / 1000;
     }
 
     let comfortStatus: 'cold_discomfort' | 'comfortable' | 'warm_discomfort' | 'extreme_cold' = 'comfortable';
@@ -366,21 +378,74 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
       windowU * geo.totalWindowAreaM2) /
     Math.max(1, totalEnvelopeArea);
 
-  // DRDO High Altitude Cold Survival Score (0 to 100)
-  // Evaluates minimum temperature achieved during coldest night hours
-  let survivalScore = 100;
-  if (minIndoorTemp < 18.0) {
-    survivalScore -= (18.0 - minIndoorTemp) * 4.5;
-  }
-  survivalScore += Math.min(20, (totalSolarKwh / (timeseries.length / 24)) * 0.8);
-  survivalScore = Math.max(10, Math.min(100, Math.round(survivalScore)));
-
+  // Area-Specific Thermal Resilience & Habitability Scoring (0 to 100)
+  // Calibrated dynamically for Cold Arid, Extreme Cold, Hot Arid, Composite, and Warm Humid areas
+  let areaHabitabilityScore = 100;
   let survivabilityIndex: 'safe' | 'caution' | 'dangerous' = 'safe';
-  if (minIndoorTemp < 0.0) {
-    survivabilityIndex = 'dangerous';
-  } else if (minIndoorTemp < 10.0) {
-    survivabilityIndex = 'caution';
+
+  const zone = location.climateZone;
+  if (zone === 'cold_arid' || zone === 'extreme_cold') {
+    // Cold defense: penalize nocturnal freezing, reward passive solar retention
+    if (minIndoorTemp < 18.0) {
+      areaHabitabilityScore -= (18.0 - minIndoorTemp) * 4.2;
+    }
+    areaHabitabilityScore += Math.min(18, (totalSolarKwh / (timeseries.length / 24)) * 0.75);
+
+    if (minIndoorTemp < 0.0) {
+      survivabilityIndex = 'dangerous';
+    } else if (minIndoorTemp < 10.0) {
+      survivabilityIndex = 'caution';
+    } else {
+      survivabilityIndex = 'safe';
+    }
+  } else if (zone === 'hot_arid') {
+    // Hot desert defense: penalize daytime overheating above 32°C, penalize high indoor swing, reward thermal damping
+    if (maxIndoorTemp > 30.0) {
+      areaHabitabilityScore -= (maxIndoorTemp - 30.0) * 5.5;
+    }
+    if (dampingFactor > 0.40) {
+      areaHabitabilityScore -= (dampingFactor - 0.40) * 40;
+    }
+    // Reward night purge cooling
+    if (design.openings.ventilationRateAchNight > design.openings.ventilationRateAchDay) {
+      areaHabitabilityScore += 10;
+    }
+
+    if (maxIndoorTemp > 39.0) {
+      survivabilityIndex = 'dangerous';
+    } else if (maxIndoorTemp > 33.5) {
+      survivabilityIndex = 'caution';
+    } else {
+      survivabilityIndex = 'safe';
+    }
+  } else {
+    // Composite & Warm Humid: Dual balance (winter cold avoidance + summer heat dampening)
+    if (minIndoorTemp < 16.0) {
+      areaHabitabilityScore -= (16.0 - minIndoorTemp) * 3.5;
+    }
+    if (maxIndoorTemp > 31.0) {
+      areaHabitabilityScore -= (maxIndoorTemp - 31.0) * 4.5;
+    }
+
+    if (minIndoorTemp < 4.0 || maxIndoorTemp > 38.5) {
+      survivabilityIndex = 'dangerous';
+    } else if (minIndoorTemp < 12.0 || maxIndoorTemp > 33.0) {
+      survivabilityIndex = 'caution';
+    } else {
+      survivabilityIndex = 'safe';
+    }
   }
+
+  areaHabitabilityScore = Math.max(10, Math.min(100, Math.round(areaHabitabilityScore)));
+
+  // Legacy high altitude survival score alias
+  const survivalScore = areaHabitabilityScore;
+
+  // Night flush cooling effectiveness
+  const nightFlushEffectivenessPercent = Math.max(
+    0,
+    Math.min(100, Math.round(((diurnalOutdoorSwing - diurnalIndoorSwing) / Math.max(1, diurnalOutdoorSwing)) * 100))
+  );
 
   const summary: SimulationSummary = {
     minIndoorTempC: Number(minIndoorTemp.toFixed(2)),
@@ -398,6 +463,10 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
     totalConductionLossKwh: Number(totalCondLossKwh.toFixed(1)),
     totalVentilationLossKwh: Number(totalVentLossKwh.toFixed(1)),
     totalInternalGainKwh: Number(totalIntGainKwh.toFixed(1)),
+    heatingDemandKwh: Number(totalHeatingDemandKwh.toFixed(1)),
+    coolingDemandKwh: Number(totalCoolingDemandKwh.toFixed(1)),
+    solAirPeakRoofTempC: Number(maxSolAirRoofC.toFixed(1)),
+    nightFlushEffectivenessPercent,
 
     comfortHoursCount: comfortHours,
     totalSimulationHours: timeseries.length,
@@ -412,9 +481,11 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
 
     passiveSurvivabilityIndex: survivabilityIndex,
     drdoColdSurvivalScore: survivalScore,
+    areaThermalHabitabilityScore: areaHabitabilityScore,
   };
 
   const assumptionsNotes = [
+    `Altitude barometric pressure ${barometricPressureKPa.toFixed(1)} kPa with density $\\rho = ${airDensity.toFixed(3)}\\text{ kg/m}^3$ at ${location.altitudeMeters}m MSL (${location.name}).`,
     `Zone lumped air & participating boundary wall mass capacitance ($C_{zone} = ${Math.round(totalCapacitanceJPerK / 1000)}\\text{ kJ/K}$).`,
     `Wall composite U-value: ${wallAssembly.uValue} W/(m²·K), Roof U-value: ${roofAssembly.uValue} W/(m²·K).`,
     `Window Glazing: ${glazingInfo.name} ($U=${windowU}\\text{ W/m}^2\\text{K}$, $SHGC=${windowSHGC}$).`,

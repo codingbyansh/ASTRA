@@ -223,6 +223,11 @@ export interface SimulationSummary {
   
   passiveSurvivabilityIndex: 'safe' | 'caution' | 'dangerous';
   drdoColdSurvivalScore: number; // 0 to 100 score for Leh/High altitude conditions
+  areaThermalHabitabilityScore?: number; // 0 to 100 score adapted for any climate zone (hot, cold, composite, humid)
+  heatingDemandKwh?: number;
+  coolingDemandKwh?: number;
+  solAirPeakRoofTempC?: number;
+  nightFlushEffectivenessPercent?: number;
 }
 
 export interface SimulationResult {
@@ -294,6 +299,7 @@ export interface ValidationTestCase {
   allowableErrorTolerancePercent: number;
   status: 'PASSED' | 'FAILED';
   scientificNotes: string;
+  easyToSayTakeaway?: string;
 }
 
 export type AppView = 
@@ -305,5 +311,4 @@ export type AppView =
   | 'compare'
   | 'optimize'
   | 'validation'
-  | 'reports'
-  | 'methodology';
+  | 'reports';

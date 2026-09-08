@@ -50,7 +50,6 @@ export const Navbar: React.FC = () => {
     { id: 'optimize', label: 'Design Optimizer', hindiLabel: 'इष्टतमीकरण', icon: Sliders },
     { id: 'validation', label: 'Validation Suite', hindiLabel: 'सत्यापन सूट', icon: CheckCircle2 },
     { id: 'reports', label: 'Official Report', hindiLabel: 'तकनीकी रिपोर्ट', icon: FileText },
-    { id: 'methodology', label: 'NBC/IMAC Physics', hindiLabel: 'भौतिकी मानक', icon: BookOpen },
   ];
 
   return (

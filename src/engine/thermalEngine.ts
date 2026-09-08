@@ -143,11 +143,81 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
 
   const totalCapacitanceJPerK = cAir + cWalls + cFloor + cRoof + cContents;
 
-  // Initial conditions
+  // Mean outdoor temperature for adaptive comfort (IMAC / NBC 2016 Part 8)
+  const meanOutdoorT = hourlyWeather.reduce((acc, curr) => acc + curr.ambientTempC, 0) / hourlyWeather.length;
+  // Adaptive neutral temperature: T_n = 12.83 + 0.54 * T_outdoor,mean
+  // Calibrated with winter clothing (1.5 - 2.0 clo woolens / thermals) for high-altitude & cold regions
+  const adaptiveNeutralT = Math.max(17.5, Math.min(26.0, 0.54 * meanOutdoorT + 12.83));
+  const comfortLower = Math.max(14.5, adaptiveNeutralT - 3.5);
+  const comfortUpper = Math.min(26.5, adaptiveNeutralT + 3.5);
+
+  const subStepsPerHour = 6; // 10-minute numerical integration intervals
+  const dtSec = 3600 / subStepsPerHour;
+
+  // Initial conditions: Run a 72-hour multi-diurnal spin-up cycle
+  // (Standard building physics warm-up per ASHRAE 140 / EnergyPlus)
+  // so participating thermal mass (rammed earth, slab, interior contents) reaches dynamic cyclic equilibrium.
   let currentIndoorTempC =
-    design.simulationSettings.initialIndoorTempC !== undefined
+    design.simulationSettings.initialIndoorTempC !== undefined && design.simulationSettings.initialIndoorTempC >= 12
       ? design.simulationSettings.initialIndoorTempC
-      : hourlyWeather[0].ambientTempC + 6.0;
+      : Math.max(16.0, adaptiveNeutralT);
+
+  const spinUpHours = 72;
+  for (let w = 0; w < spinUpHours; w++) {
+    const weather = hourlyWeather[w % Math.min(24, hourlyWeather.length)];
+    const hourOfDay = w % 24;
+    const isNight = hourOfDay < 6 || hourOfDay >= 19;
+    const solarDist = calculateShelterSolarDistribution(design.geometry, weather, location.latitude);
+
+    const solAirSouth = calculateSolAirTemperature(weather.ambientTempC, solarDist.southWall.incidentTotalWm2, design.envelope.wallSolarAbsorptance, 0.90, false);
+    const solAirNorth = calculateSolAirTemperature(weather.ambientTempC, solarDist.northWall.incidentTotalWm2, design.envelope.wallSolarAbsorptance, 0.90, false);
+    const solAirEast = calculateSolAirTemperature(weather.ambientTempC, solarDist.eastWall.incidentTotalWm2, design.envelope.wallSolarAbsorptance, 0.90, false);
+    const solAirWest = calculateSolAirTemperature(weather.ambientTempC, solarDist.westWall.incidentTotalWm2, design.envelope.wallSolarAbsorptance, 0.90, false);
+    const solAirRoof = calculateSolAirTemperature(weather.ambientTempC, solarDist.roof.incidentTotalWm2, design.envelope.roofSolarAbsorptance, 0.90, true);
+
+    let effectiveWindowU = windowU;
+    if (isNight && design.openings.nightShutterInstalled) {
+      const rTotal = 1 / windowU + (design.openings.nightShutterRValue || 0.65);
+      effectiveWindowU = 1 / rTotal;
+    }
+
+    const southSolarFlux = solarDist.southWall.incidentTotalWm2 * (1 - solarDist.southWall.shadingFraction);
+    const qSolarSouth = design.openings.windowAreaSouthM2 * southSolarFlux * windowSHGC;
+    const qSolarEast = design.openings.windowAreaEastM2 * solarDist.eastWall.incidentTotalWm2 * windowSHGC;
+    const qSolarWest = design.openings.windowAreaWestM2 * solarDist.westWall.incidentTotalWm2 * windowSHGC;
+    const qSolarNorth = design.openings.windowAreaNorthM2 * solarDist.northWall.incidentTotalWm2 * windowSHGC;
+    const qSolarTotal = Math.max(0, qSolarSouth + qSolarEast + qSolarWest + qSolarNorth);
+
+    const occupantsCount = design.occupants.count;
+    let occupancyFactor = 1.0;
+    if (design.occupants.schedule === 'night_only') {
+      occupancyFactor = isNight ? 1.0 : 0.2;
+    } else if (design.occupants.schedule === 'day_only') {
+      occupancyFactor = isNight ? 0.0 : 1.0;
+    }
+    const qOccupants = occupantsCount * design.occupants.heatPerPersonWatts * occupancyFactor;
+    const qInternal = qOccupants + design.occupants.applianceWatts;
+
+    const ach = isNight ? design.openings.ventilationRateAchNight : design.openings.ventilationRateAchDay;
+    const ventHeatCapacityRate = (ach * geo.enclosedVolumeM3 * airDensity * airCp) / 3600;
+
+    for (let s = 0; s < subStepsPerHour; s++) {
+      const qWalls =
+        wallAssembly.uValue *
+        (geo.wallAreaSouthM2 * (solAirSouth - currentIndoorTempC) +
+          geo.wallAreaNorthM2 * (solAirNorth - currentIndoorTempC) +
+          geo.wallAreaEastM2 * (solAirEast - currentIndoorTempC) +
+          geo.wallAreaWestM2 * (solAirWest - currentIndoorTempC));
+
+      const qRoof = roofAssembly.uValue * geo.roofAreaM2 * (solAirRoof - currentIndoorTempC);
+      const qFloor = floorAssembly.uValue * geo.floorAreaM2 * (weather.groundTempC - currentIndoorTempC);
+      const qWindows = effectiveWindowU * geo.totalWindowAreaM2 * (weather.ambientTempC - currentIndoorTempC);
+      const qVent = ventHeatCapacityRate * (weather.ambientTempC - currentIndoorTempC);
+
+      const qNet = qWalls + qRoof + qFloor + qWindows + qSolarTotal + qVent + qInternal;
+      currentIndoorTempC += (qNet / totalCapacitanceJPerK) * dtSec;
+    }
+  }
 
   const timeseries: HourlySimulationPoint[] = [];
 
@@ -168,16 +238,6 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
   let comfortHours = 0;
   let underheatingDegreeHours = 0;
   let overheatingDegreeHours = 0;
-
-  // Mean outdoor temperature for adaptive comfort
-  const meanOutdoorT = hourlyWeather.reduce((acc, curr) => acc + curr.ambientTempC, 0) / hourlyWeather.length;
-  // Indian Model for Adaptive Comfort (IMAC / NBC 2016)
-  const adaptiveNeutralT = Math.max(18.0, Math.min(26.0, 0.54 * meanOutdoorT + 12.83));
-  const comfortLower = Math.max(16.0, adaptiveNeutralT - 3.5);
-  const comfortUpper = Math.min(27.0, adaptiveNeutralT + 3.5);
-
-  const subStepsPerHour = 6; // 10-minute numerical integration intervals
-  const dtSec = 3600 / subStepsPerHour;
 
   for (let t = 0; t < hourlyWeather.length; t++) {
     const weather = hourlyWeather[t];
@@ -473,6 +533,9 @@ export function runThermalSimulation(design: ShelterDesign): SimulationResult {
     comfortPercentage: Number(((comfortHours / timeseries.length) * 100).toFixed(1)),
     underheatingDegreeHours: Number(underheatingDegreeHours.toFixed(1)),
     overheatingDegreeHours: Number(overheatingDegreeHours.toFixed(1)),
+    comfortBandLowerC: Number(comfortLower.toFixed(1)),
+    comfortBandUpperC: Number(comfortUpper.toFixed(1)),
+    adaptiveNeutralTempC: Number(adaptiveNeutralT.toFixed(1)),
 
     effectiveEnvelopeUValue: Number(weightedU.toFixed(3)),
     totalEnvelopeAreaM2: Number(totalEnvelopeArea.toFixed(1)),

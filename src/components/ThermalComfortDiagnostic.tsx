@@ -80,7 +80,7 @@ export const ThermalComfortDiagnostic: React.FC = () => {
         {/* Status Tag */}
         <div className="flex items-center gap-2">
           <span className="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
-            Target Band: 16.0°C – 24.5°C
+            Target Band: {summary?.comfortBandLowerC ?? 15.0}°C – {summary?.comfortBandUpperC ?? 24.5}°C
           </span>
         </div>
       </div>
@@ -114,7 +114,7 @@ export const ThermalComfortDiagnostic: React.FC = () => {
                   +{(minIn - minOut).toFixed(1)}°C passive thermal lift
                 </strong>{' '}
                 above sub-zero ambient conditions, operating relative to the national IMAC-2016
-                adaptive comfort lower limit (16.0°C).
+                adaptive comfort lower limit ({summary?.comfortBandLowerC ?? 15.0}°C).
               </p>
             ) : (
               <p className="text-xs text-slate-700 leading-relaxed">
@@ -122,7 +122,7 @@ export const ThermalComfortDiagnostic: React.FC = () => {
                 <strong className="text-emerald-800 font-semibold">
                   {minIn}°C and {maxIn}°C
                 </strong>
-                , remaining entirely within the IMAC-2016 adaptive comfort band throughout
+                , remaining entirely within the IMAC-2016 adaptive comfort band ({summary?.comfortBandLowerC ?? 15.0}°C – {summary?.comfortBandUpperC ?? 24.5}°C) throughout
                 the 24-hour cycle.
               </p>
             )}
@@ -141,7 +141,9 @@ export const ThermalComfortDiagnostic: React.FC = () => {
               </div>
               <div className="bg-slate-50 p-2 rounded border border-slate-200 text-center">
                 <span className="text-[10px] text-slate-500 block">Comfort Target</span>
-                <span className="font-mono text-xs font-bold text-emerald-700">16.0°C – 24.5°C</span>
+                <span className="font-mono text-xs font-bold text-emerald-700">
+                  {summary?.comfortBandLowerC ?? 15.0}°C – {summary?.comfortBandUpperC ?? 24.5}°C
+                </span>
               </div>
             </div>
           </div>

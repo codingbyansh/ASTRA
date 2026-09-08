@@ -218,6 +218,9 @@ export interface SimulationSummary {
   comfortPercentage: number;
   underheatingDegreeHours: number;
   overheatingDegreeHours: number;
+  comfortBandLowerC?: number;
+  comfortBandUpperC?: number;
+  adaptiveNeutralTempC?: number;
   
   effectiveEnvelopeUValue: number; // Area-weighted average U-value W/(m2*K)
   totalEnvelopeAreaM2: number;

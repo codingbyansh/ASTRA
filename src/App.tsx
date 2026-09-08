@@ -47,7 +47,7 @@ const MainLayout: React.FC = () => {
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-400 font-medium">
-            <span className="text-amber-400">ANSI/ASHRAE Standard 140 BESTEST</span>
+            <span className="text-amber-400">ANSI/ASHRAE Standard 140</span>
             <span className="text-emerald-400">ISO 6946 / IS 3792 Compliant</span>
             <span className="text-slate-300">Open Engineering Architecture</span>
           </div>

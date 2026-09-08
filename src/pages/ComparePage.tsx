@@ -201,7 +201,7 @@ export const ComparePage: React.FC = () => {
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500">DRDO Survival Score:</span>
+                    <span className="text-slate-500">Habitability Score:</span>
                     <span className="font-bold text-blue-900">{summary.drdoColdSurvivalScore}/100</span>
                   </div>
                 </div>

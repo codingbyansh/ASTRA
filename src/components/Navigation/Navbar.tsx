@@ -1,4 +1,4 @@
-// DRDO Defence Habitat: Official Government Portal Header & Workflow Navigation Bar
+// ASTRA Habitat Engineering: Header & Workflow Navigation Bar
 import React, { useState } from 'react';
 import { useDesign } from '../../store/designStore';
 import { AppView } from '../../types';
@@ -54,31 +54,22 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-[#0f233a] border-b border-[#1c3a5e] shadow-md">
-      {/* 1. National Tricolor Top Ribbon (Saffron, White, Green) */}
-      <div className="w-full flex h-1.5 overflow-hidden">
-        <div className="flex-1 bg-[#FF9933]" />
-        <div className="flex-1 bg-[#FFFFFF]" />
-        <div className="flex-1 bg-[#138808]" />
-      </div>
-
-      {/* 2. Official Government Top Auxiliary Strip */}
+      {/* 1. Top Auxiliary Strip */}
       <div className="bg-[#091728] border-b border-[#162d4a] text-slate-300 text-[11px] py-1 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          {/* Official Indian Ministry Tagline */}
+          {/* Platform Tagline */}
           <div className="flex items-center gap-2.5">
-            <span className="font-semibold text-amber-400 flex items-center gap-1.5">
+            <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-              {lang === 'HI' ? 'भारत सरकार' : 'Government of India'}
+              {lang === 'HI' ? 'परियोजना एस्ट्रा' : 'Project ASTRA'}
             </span>
             <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-slate-300 hidden sm:inline">
-              {lang === 'HI' ? 'राष्ट्रीय तापीय एवं आवास अनुसंधान' : 'National Thermal & Habitat Engineering'}
+              {lang === 'HI' ? 'क्षेत्र-विशिष्ट तापीय प्रतिक्रिया विश्लेषक' : 'Area-Specific Thermal Response Analyzer'}
             </span>
             <span className="text-slate-600 hidden md:inline">|</span>
             <span className="text-amber-300/90 hidden md:inline font-mono text-[10px]">
-              {lang === 'HI'
-                ? 'परियोजना एस्ट्रा · क्षेत्र-विशिष्ट तापीय प्रतिक्रिया विश्लेषक मंच'
-                : 'ASTRA · AREA-SPECIFIC THERMAL RESPONSE ANALYZER PLATFORM'}
+              HABITAT THERMAL & ENVELOPE SIMULATION STUDIO
             </span>
           </div>
 
@@ -101,7 +92,7 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Main Government Portal Header */}
+      {/* 2. Main Platform Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* State Emblem & Platform Identity */}
         <div className="flex items-center gap-3.5">

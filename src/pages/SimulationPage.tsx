@@ -201,7 +201,7 @@ export const SimulationPage: React.FC = () => {
         </div>
 
         <div className="bg-white border border-slate-200 p-3.5 rounded-xl shadow-sm">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold block">DRDO Survival Score</span>
+          <span className="text-[10px] text-slate-500 uppercase font-semibold block">Habitability & Survival Index</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-xl font-bold text-blue-900 font-mono">{summary.drdoColdSurvivalScore}/100</span>
           </div>
@@ -211,7 +211,7 @@ export const SimulationPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Thermal Comfort Diagnostic & Quick Fix Explainer */}
+      {/* Thermal Comfort Assessment */}
       <ThermalComfortDiagnostic />
 
       {/* Chart Selector & Interactive Viewport */}

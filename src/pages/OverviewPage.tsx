@@ -165,7 +165,7 @@ export const OverviewPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Dynamic Thermal Comfort Diagnostic & Instant Remedy Tool */}
+      {/* Thermal Comfort Assessment */}
       <ThermalComfortDiagnostic />
 
       {/* Main Grid: 3D CAD Preview + Climate & Assembly Profile */}
@@ -236,7 +236,7 @@ export const OverviewPage: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-600 leading-relaxed">
-              <div className="font-semibold text-slate-800 mb-0.5">Area Mission Context:</div>
+              <div className="font-semibold text-slate-800 mb-0.5">Site Operational Context:</div>
               {location.drdoRelevanceNotes}
             </div>
           </div>

@@ -1,4 +1,4 @@
-// DRDO Defence Habitat Climate Database & Representative Meteorological Normal Profiles
+// ASTRA Habitat Climate Database & Representative Meteorological Normal Profiles
 // Derived from IMD (India Meteorological Department), ISHRAE Weather Data, and NASA POWER Climatology.
 
 import { ClimateLocation, HourlyClimateData, Season } from '../types';

@@ -13,9 +13,9 @@ import { runThermalSimulation } from '../engine/thermalEngine';
 import { runDesignOptimization } from '../engine/optimizer';
 import { CLIMATE_LOCATIONS, getLocationById } from '../data/climate';
 
-// Default Canonical Demo Design (DRDO Leh, Ladakh Standard High-Altitude Test Case)
+// Default Canonical Demo Design (ASTRA Leh, Ladakh Standard High-Altitude Test Case)
 export const DEFAULT_LEH_DEMO_DESIGN: ShelterDesign = {
-  id: 'drdo_leh_baseline',
+  id: 'leh_baseline_shelter',
   name: 'ASTRA Alpine Field Shelter (Leh Baseline)',
   locationId: 'leh_ladakh',
   geometry: {
@@ -78,7 +78,7 @@ export const DEFAULT_LEH_DEMO_DESIGN: ShelterDesign = {
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
-  notes: 'Canonical DRDO 8-soldier outpost shelter configuration designed for -18°C Leh winter conditions.',
+  notes: 'Canonical 8-soldier outpost shelter configuration designed for -18°C Leh winter conditions.',
   tags: ['Leh-Ladakh', '8-Personnel', 'Passive-Solar', 'Rammed-Earth'],
 };
 

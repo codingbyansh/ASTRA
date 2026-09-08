@@ -1,5 +1,5 @@
-// DRDO Defence Habitat Scientific Validation Benchmark Database
-// Verified against Analytical Fourier solutions, ASHRAE Standard 140 BESTEST, EnergyPlus 9.6, and DRDO DIHAR Field Trial Monographs.
+// ASTRA Scientific Validation Benchmark Database
+// Verified against Analytical Fourier solutions, ASHRAE Standard 140 BESTEST, EnergyPlus 9.6, and High-Altitude Field Trial Monographs.
 
 import { ValidationTestCase } from '../types';
 

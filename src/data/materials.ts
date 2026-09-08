@@ -1,5 +1,5 @@
-// DRDO Defence Habitat Materials Thermophysical Engineering Database
-// Grounded in ASHRAE Handbook of Fundamentals, IS 3792, NBC 2016 India, and DRDO high-altitude technical specifications.
+// ASTRA Habitat Materials Thermophysical Engineering Database
+// Grounded in ASHRAE Handbook of Fundamentals, IS 3792, NBC 2016 India, and alpine high-altitude technical specifications.
 
 import { Material, GlazingType } from '../types';
 
@@ -7,7 +7,7 @@ export const MATERIALS_DATABASE: Material[] = [
   // --- MASONRY & EARTH MATERIALS (Thermal Mass) ---
   {
     id: 'rammed_earth_stabilized',
-    name: 'Stabilized Rammed Earth (DRDO High Altitude)',
+    name: 'Stabilized Rammed Earth (High-Altitude Alpine)',
     category: 'earth',
     density: 2050,
     specificHeat: 1150,
@@ -17,7 +17,7 @@ export const MATERIALS_DATABASE: Material[] = [
     solarAbsorptance: 0.65,
     embodiedCarbonKgCO2ePerKg: 0.045,
     costIndexINRPerM3: 4200,
-    sourceReference: 'IS 13827 / DRDO Cold Desert Shelter Manual',
+    sourceReference: 'IS 13827 / Cold Desert Shelter Technical Manual',
     description: 'Local Ladakh clay-gravel compacted with 6% lime-cement stabilizer. High thermal inertia for passive heat storage.',
     hexColor: '#a77b5a',
   },
@@ -147,7 +147,7 @@ export const MATERIALS_DATABASE: Material[] = [
     solarAbsorptance: 0.30,
     embodiedCarbonKgCO2ePerKg: 1.20,
     costIndexINRPerM3: 9500,
-    sourceReference: 'IS 8183 / ASTM C612 / DRDO High Altitude Spec',
+    sourceReference: 'IS 8183 / ASTM C612 / High Altitude Engineering Spec',
     description: 'Non-combustible basalt stone fiber board. Essential for perimeter envelope in freezing Leh/Siachen conditions.',
     hexColor: '#b4a682',
   },
@@ -211,7 +211,7 @@ export const MATERIALS_DATABASE: Material[] = [
     solarAbsorptance: 0.40,
     embodiedCarbonKgCO2ePerKg: 0.150,
     costIndexINRPerM3: 6000,
-    sourceReference: 'DIHAR DRDO Leh Research / Secmol Eco-Studies',
+    sourceReference: 'Leh Alpine Field Research / Secmol Eco-Studies',
     description: 'Indigenous high-altitude wool batt naturally hygroscopic with excellent breathability and negative net carbon footprint.',
     hexColor: '#dfd7c2',
   },
@@ -261,7 +261,7 @@ export const MATERIALS_DATABASE: Material[] = [
     solarAbsorptance: 0.40, // Cool roof coating
     embodiedCarbonKgCO2ePerKg: 3.80,
     costIndexINRPerM3: 18500,
-    sourceReference: 'DRDO Prefab High Altitude Technical Standard',
+    sourceReference: 'Prefab High Altitude Technical Standard',
     description: 'Complete integrated roof system delivering $U=0.28\\text{ W}/(\\text{m}^2\\cdot\\text{K})$ with high snow-load capacity.',
     hexColor: '#5c768d',
   },

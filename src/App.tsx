@@ -37,7 +37,7 @@ const MainLayout: React.FC = () => {
         {activeView === 'reports' && <ReportsPage />}
       </main>
 
-      {/* Official Government Engineering Scientific Footer */}
+      {/* Platform Engineering Scientific Footer */}
       <footer className="bg-[#0b1b2d] border-t border-[#182d49] py-5 px-6 text-xs text-slate-300 print:hidden">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
@@ -49,7 +49,7 @@ const MainLayout: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-400 font-medium">
             <span className="text-amber-400">ANSI/ASHRAE Standard 140 BESTEST</span>
             <span className="text-emerald-400">ISO 6946 / IS 3792 Compliant</span>
-            <span className="text-slate-300">Government of India</span>
+            <span className="text-slate-300">Open Engineering Architecture</span>
           </div>
         </div>
       </footer>
